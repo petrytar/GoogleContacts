@@ -28,6 +28,7 @@ public:
 
 signals:
     void authCodeReceived(const QString& accessToken);
+    void authFailureReceived();
 
 private slots:
     void onNewConnection();

@@ -77,13 +77,17 @@ void AuthServer::tcpReady()
         if (end >= 0) {
             QString authCode = textData.mid(pos, end - pos);
             emit authCodeReceived(authCode);
+            return;
         }
     }
+
+    emit authFailureReceived();
 }
 
 void AuthServer::tcpError(QAbstractSocket::SocketError error)
 {
     qDebug() << "AuthServer::tcpError" << sender() << error;
+    emit authFailureReceived();
 }
 
 ushort AuthServer::getFreeOpenPort() const

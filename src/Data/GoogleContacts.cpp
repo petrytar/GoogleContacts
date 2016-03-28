@@ -1,5 +1,6 @@
 #include "GoogleContacts.h"
 
+#include <Data/Model/Database.h>
 #include "Data/debugAsserts.h"
 
 #include <QNetworkAccessManager>
@@ -13,9 +14,11 @@ namespace data
 
 GoogleContacts::GoogleContacts(QObject* parent) :
     BaseClass(parent),
+    m_database(new Database()),
     m_accessToken(""),
     m_networkAccessManager(new QNetworkAccessManager)
 {
+    m_database->open();
 }
 
 GoogleContacts::~GoogleContacts()

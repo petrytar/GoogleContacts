@@ -19,6 +19,12 @@ public:
     explicit LoginDialog(QUrl url, QWidget* parent = 0);
     ~LoginDialog();
 
+signals:
+    void loadFailed();
+
+private slots:
+    void onLoadFinished(bool ok);
+
 private:
     Ui::LoginDialog* ui;
 };

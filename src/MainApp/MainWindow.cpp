@@ -39,6 +39,7 @@ void MainWindow::setup()
     {
         m_authManager->start();
         m_loginDialog = new LoginDialog(m_authManager->generateAuthorizationRequestUrl(), parentWidget());
+        VERIFY(connect(m_loginDialog, SIGNAL(loadFailed()), this, SLOT(onLoginLoadFailed())));
         VERIFY(connect(m_authManager, SIGNAL(accessTokenReceived()), this, SLOT(onAuthSuccessful())));
         VERIFY(connect(m_authManager, SIGNAL(error()), this, SLOT(onAuthFailed())));
         m_loginDialog->show();
@@ -47,6 +48,13 @@ void MainWindow::setup()
     {
         show();
     }
+}
+
+void MainWindow::onLoginLoadFailed()
+{
+    m_loginDialog->close();
+    QMessageBox::critical(this, QString("Error"), QString("Failed to login!"));
+    exit(-1);
 }
 
 void MainWindow::onAuthSuccessful()
@@ -60,6 +68,6 @@ void MainWindow::onAuthSuccessful()
 void MainWindow::onAuthFailed()
 {
     m_loginDialog->close();
-    QMessageBox::critical(this, QString("Error"), QString("Failure in authentication"));
+    QMessageBox::critical(this, QString("Error"), QString("Failed authentication!"));
     exit(-1);
 }

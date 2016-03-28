@@ -11,6 +11,7 @@ class QNetworkAccessManager;
 
 namespace data
 {
+class Database;
 
 /**
  * \brief The GoogleContacts class.
@@ -40,6 +41,7 @@ private:
     void readFromXmlDom(const QString& body);
     void printAllContacts() const;
 
+    Database* m_database;
     QString m_accessToken;
     QNetworkAccessManager* m_networkAccessManager;
     QList<ContactEntry*> m_contactEntries;

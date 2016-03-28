@@ -31,6 +31,7 @@ public:
 private slots:
     void onAuthSuccessful();
     void onAuthFailed();
+    void onLoginLoadFailed();
 
 private:
     /// Customize the appearance of dialogue

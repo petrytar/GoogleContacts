@@ -38,13 +38,13 @@ signals:
 
 private slots:
     void onAuthCodeReceived(const QString& accessToken);
+    void onAuthFailureReceived();
     void onReplyFinished();
 
 private:
     ushort getFreeOpenPort() const;
 
     QNetworkAccessManager* m_networkAccessManager;
-    //data::GoogleContacts* m_googleContacts;
     AuthServer* m_authServer;
     QString m_accessToken;
 };

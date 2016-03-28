@@ -1,3 +1,4 @@
+include($$PWD/../../../QxOrm/QxOrm.pri)
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets core gui network webkit webkitwidgets
 
 TARGET      = MainApp
