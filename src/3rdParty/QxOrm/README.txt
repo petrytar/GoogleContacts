@@ -1,0 +1,2 @@
+set path in variable BOOST_INCLUDE to your boost folder (Open Project -> Switch to Projects (Ctrl+5) -> Build Environment Details -> Add 
+VARIABLE: BOOST_INCLUDE			VALUE:	Path to bost folder(Ex. /home/user/Desktop/libs/Boost/boost_1_60_0))

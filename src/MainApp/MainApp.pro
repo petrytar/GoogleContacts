@@ -1,4 +1,4 @@
-include($$PWD/../../../QxOrm/QxOrm.pri)
+include($$PWD/../3rdParty/QxOrm/QxOrm.pri)
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets core gui network webkit webkitwidgets
 
 TARGET      = MainApp
@@ -25,6 +25,8 @@ FORMS      += \
 win32 {
     LIBS += -L$$OUT_PWD/../../libs/win32/ -llibeay32 -lssleay32
 }
+unix:!macx: LIBS += -L$$PWD/../../libs/linux/QxOrm/ -lQxOrm
+
 LIBS += -L$$OUT_PWD/../ -lData
 
 INCLUDEPATH += $$PWD/../

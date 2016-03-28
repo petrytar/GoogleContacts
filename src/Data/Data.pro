@@ -1,4 +1,4 @@
-include($$PWD/../../../QxOrm/QxOrm.pri)
+include($$PWD/../3rdParty/QxOrm/QxOrm.pri)
 
 QT += network widgets xml
 
@@ -12,6 +12,7 @@ DESTDIR = $$OUT_PWD/..
 win32 {
     LIBS += -L$$OUT_PWD/../../libs/win32/ -lQxOrm
 }
+unix:!macx: LIBS += -L$$PWD/../../libs/linux/QxOrm/ -lQxOrm
 
 SOURCES    += \
     debugAsserts.cpp \
@@ -41,5 +42,3 @@ RESOURCES += \
 INCLUDEPATH += $$PWD/../ \
     ../3rdparty/QxOrm/include/ \
     ../3rdparty/
-
-
