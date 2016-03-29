@@ -40,5 +40,5 @@ RESOURCES += \
     ../../resources/resources.qrc
 
 INCLUDEPATH += $$PWD/../ \
-    ../3rdparty/QxOrm/include/ \
-    ../3rdparty/
+    ../3rdParty/QxOrm/include/ \
+    ../3rdParty/

@@ -7,7 +7,7 @@ namespace data
 
 ContactEntry::ContactEntry(QObject* parent) :
     BaseClass(parent),
-    m_data()
+    m_columnIdToValueMap()
 {
 }
 
@@ -15,15 +15,18 @@ ContactEntry::~ContactEntry()
 {
 }
 
-QString ContactEntry::getData(const QString& tagName) const
+QList<Value*> ContactEntry::getData(int columnId) const
 {
-    ASSERT(m_data.contains(tagName), "No such data");
-    return m_data[tagName];
+    if (m_columnIdToValueMap.contains(columnId))
+    {
+        return m_columnIdToValueMap[columnId];
+    }
+    return QList<Value*>() << new Value(QString(), QList<Attribute*>());
 }
 
-void ContactEntry::setData(const QString& tagName, const QString& tagValue)
+void ContactEntry::setData(int columnId, QList<Value*> values)
 {
-    m_data[tagName] = tagValue;
+    m_columnIdToValueMap[columnId] = values;
 }
 
 } // namespace data

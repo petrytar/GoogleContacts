@@ -1,0 +1,216 @@
+diff --git a/src/Data/ContactEntry.cpp b/src/Data/ContactEntry.cpp
+index 9b01fee..f9ba70a 100644
+--- a/src/Data/ContactEntry.cpp
++++ b/src/Data/ContactEntry.cpp
+@@ -7,7 +7,7 @@ namespace data
+ 
+ ContactEntry::ContactEntry(QObject* parent) :
+     BaseClass(parent),
+-    m_data()
++    m_columnIdToValueMap()
+ {
+ }
+ 
+@@ -15,15 +15,19 @@ ContactEntry::~ContactEntry()
+ {
+ }
+ 
+-QString ContactEntry::getData(const QString& tagName) const
++QString ContactEntry::getData(int columnId) const
+ {
+-    ASSERT(m_data.contains(tagName), "No such data");
+-    return m_data[tagName];
++    ASSERT(m_columnIdToValueMap.contains(columnId), "No such data");
++    return m_columnIdToValueMap[columnId];
+ }
+ 
+-void ContactEntry::setData(const QString& tagName, const QString& tagValue)
++void ContactEntry::setData(int columnId, const QString& tagValue, bool& someDataSaved)
+ {
+-    m_data[tagName] = tagValue;
++    if (!tagValue.isEmpty())
++    {
++        m_columnIdToValueMap[columnId] = tagValue;
++        someDataSaved = true;
++    }
+ }
+ 
+ } // namespace data
+diff --git a/src/Data/ContactEntry.h b/src/Data/ContactEntry.h
+index 08d6973..9542ca0 100644
+--- a/src/Data/ContactEntry.h
++++ b/src/Data/ContactEntry.h
+@@ -17,19 +17,21 @@ class ContactEntry : public QObject
+     Q_OBJECT
+ private:
+     typedef QObject BaseClass;
++    typedef QMap<int, QString> IntToStringMap;
+ 
+ public:
+     explicit ContactEntry(QObject* parent);
+     virtual ~ContactEntry();
+ 
+-    QString getData(const QString& tagName) const;
+-    void setData(const QString& tagName, const QString& tagValue);
++    QString getData(int columnId) const;
++    void setData(int columnId, const QString& tagValue, bool& someDataSaved);
++
+ 
+     // inline implementation
+-    const QMap<QString, QString>& getData() const { return m_data; }
++    const IntToStringMap& getData() const { return m_columnIdToValueMap; }
+ 
+ private:
+-    QMap<QString, QString> m_data;
++    IntToStringMap m_columnIdToValueMap;
+ };
+ 
+ } // namespace data
+diff --git a/src/Data/GoogleContacts.cpp b/src/Data/GoogleContacts.cpp
+index 146af0f..3f9abd8 100644
+--- a/src/Data/GoogleContacts.cpp
++++ b/src/Data/GoogleContacts.cpp
+@@ -12,6 +12,8 @@
+ namespace data
+ {
+ 
++const int GoogleContacts::COLUMN_COUNT = GoogleContacts::EColumnId::E_COLUMN__END;
++
+ GoogleContacts::GoogleContacts(QObject* parent) :
+     BaseClass(parent),
+     m_database(new Database()),
+@@ -55,7 +57,7 @@ void GoogleContacts::printAllContacts() const
+         auto data = contactEntry->getData();
+         for (auto it = data.begin(); it != data.end(); ++it)
+         {
+-            qDebug() << it.key() << " : " << it.value();
++            qDebug() << columnIdToColumnString(it.key()) << " : " << it.value();
+         }
+     }
+ }
+@@ -71,14 +73,41 @@ void GoogleContacts::readFromXmlDom(const QString& body)
+     QDomNodeList entryList = domDocument.elementsByTagName("entry");
+     for (int i = 0; i < entryList.size(); ++i)
+     {
++        bool someDataSaved = false;
+         ContactEntry* contactEntry = new ContactEntry(parent());
+         QDomNodeList entryNameList = entryList.at(i).toElement().elementsByTagName("name");
+-        QString fullName = entryNameList.at(0).toElement().elementsByTagName("fullName").at(0).toElement().text();
+-        if (!fullName.isEmpty())
++        QString givenName = entryNameList.at(0).toElement().elementsByTagName(columnIdToColumnString(E_COLUMN_GIVEN_NAME)).at(0).toElement().text();
++        QString familyName = entryNameList.at(0).toElement().elementsByTagName(columnIdToColumnString(E_COLUMN_FAMILY_NAME)).at(0).toElement().text();
++        contactEntry->setData(E_COLUMN_GIVEN_NAME, givenName, someDataSaved);
++        contactEntry->setData(E_COLUMN_FAMILY_NAME, familyName, someDataSaved);
++
++        if (someDataSaved)
+         {
+-            contactEntry->setData("fullName", fullName);
+             m_contactEntries.push_back(contactEntry);
+         }
++        else
++        {
++            delete contactEntry;
++        }
++    }
++}
++
++QList<ContactEntry*>& GoogleContacts::getContacts()
++{
++    return m_contactEntries;
++}
++
++QString GoogleContacts::columnIdToColumnString(int columnId) const
++{
++    switch(columnId)
++    {
++        case E_COLUMN_GIVEN_NAME:
++            return "givenName";
++        case E_COLUMN_FAMILY_NAME:
++            return "familyName";
++        default:
++            ASSERT(false, "Unknown column id");
++            return "unknown";
+     }
+ }
+ 
+diff --git a/src/Data/GoogleContacts.h b/src/Data/GoogleContacts.h
+index d850169..ad62fa3 100644
+--- a/src/Data/GoogleContacts.h
++++ b/src/Data/GoogleContacts.h
+@@ -25,6 +25,8 @@ private:
+     typedef QObject BaseClass;
+ 
+ public:
++    static const int COLUMN_COUNT;
++
+     explicit GoogleContacts(QObject* parent);
+     virtual ~GoogleContacts();
+ 
+@@ -33,13 +35,24 @@ public:
+     QString getAccessToken() const { return m_accessToken; }
+ 
+     void loadContacts();
++    QList<ContactEntry*>& getContacts();
+ 
+ private slots:
+     void onReplyFinished();
+ 
+ private:
++    // Helping Enum of entry's tags
++    enum EColumnId
++    {
++        E_COLUMN__BEGIN = 0,
++        E_COLUMN_GIVEN_NAME = E_COLUMN__BEGIN,
++        E_COLUMN_FAMILY_NAME,
++        E_COLUMN__END
++    };
++
+     void readFromXmlDom(const QString& body);
+     void printAllContacts() const;
++    QString columnIdToColumnString(int columnId) const;
+ 
+     Database* m_database;
+     QString m_accessToken;
+diff --git a/src/MainApp/MainWindow.cpp b/src/MainApp/MainWindow.cpp
+index 574341a..8105a6c 100644
+--- a/src/MainApp/MainWindow.cpp
++++ b/src/MainApp/MainWindow.cpp
+@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget* parent) :
+ {
+     ui->setupUi(this);
+     adjustUi();
++    initialize();
+ }
+ 
+ bool MainWindow::isAccessTokenEnabled() const
+@@ -35,7 +36,7 @@ MainWindow::~MainWindow()
+ 
+ void MainWindow::setup()
+ {
+-    if (!isAccessTokenEnabled())
++    if (/*false && */!isAccessTokenEnabled())
+     {
+         m_authManager->start();
+         m_loginDialog = new LoginDialog(m_authManager->generateAuthorizationRequestUrl(), parentWidget());
+@@ -71,3 +72,9 @@ void MainWindow::onAuthFailed()
+     QMessageBox::critical(this, QString("Error"), QString("Failed authentication!"));
+     exit(-1);
+ }
++
++void MainWindow::initialize()
++{
++//    ui->tableWidget->setRowCount(m_googleContacts->getContacts().size());
++//    ui->tableWidget->setColumnCount(data::GoogleContacts::COLUMN_COUNT);
++}
+diff --git a/src/MainApp/MainWindow.h b/src/MainApp/MainWindow.h
+index 27d2fb9..6936ce3 100644
+--- a/src/MainApp/MainWindow.h
++++ b/src/MainApp/MainWindow.h
+@@ -37,6 +37,7 @@ private:
+     /// Customize the appearance of dialogue
+     void adjustUi();
+     bool isAccessTokenEnabled() const;
++    void initialize();
+ 
+     Ui::MainWindow* ui;
+     LoginDialog* m_loginDialog;
