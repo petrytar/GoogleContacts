@@ -29,7 +29,6 @@ public:
     void start();
     QUrl generateAuthorizationRequestUrl() const;
 
-    // inline implementations
     QString getAccessToken() const { return m_accessToken; }
 
 signals:

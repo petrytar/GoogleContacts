@@ -20,9 +20,10 @@ SOURCES    += \
     Auth/AuthServer.cpp \
     Auth/AuthSettings.cpp \
     Auth/AuthManager.cpp \
-    ContactEntry.cpp \
+    Model/ContactEntry.cpp \
     Model/User.cpp \
-    Model/Database.cpp
+    Database.cpp \
+    Model/ContactProperty.cpp
 
 HEADERS    += \
     debugAsserts.h \
@@ -32,13 +33,14 @@ HEADERS    += \
     Auth/AuthServer.h \
     Auth/AuthSettings.h \
     Auth/AuthManager.h \
-    ContactEntry.h \
+    Model/ContactEntry.h \
     Model/User.h \
-    Model/Database.h
+    Database.h \
+    Model/ContactProperty.h
 
 RESOURCES += \
     ../../resources/resources.qrc
 
 INCLUDEPATH += $$PWD/../ \
-    ../3rdparty/QxOrm/include/ \
-    ../3rdparty/
+    ../3rdParty/QxOrm/include/ \
+    ../3rdParty/

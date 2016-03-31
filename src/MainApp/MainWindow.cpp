@@ -57,11 +57,19 @@ void MainWindow::onLoginLoadFailed()
     exit(-1);
 }
 
+void MainWindow::onContactsLoad()
+{
+    updateWidgetsData();
+    QApplication::restoreOverrideCursor();
+}
+
 void MainWindow::onAuthSuccessful()
 {
     m_loginDialog->close();
     m_googleContacts->setAccessToken(m_authManager->getAccessToken());
+    QApplication::setOverrideCursor(Qt::WaitCursor);
     m_googleContacts->loadContacts();
+    VERIFY(connect(m_googleContacts, SIGNAL(contactsLoad()), this, SLOT(onContactsLoad())));
     show();
 }
 
@@ -70,4 +78,8 @@ void MainWindow::onAuthFailed()
     m_loginDialog->close();
     QMessageBox::critical(this, QString("Error"), QString("Failed authentication!"));
     exit(-1);
+}
+
+void MainWindow::updateWidgetsData()
+{
 }

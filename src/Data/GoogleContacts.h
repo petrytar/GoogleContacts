@@ -2,7 +2,6 @@
 #define DATA_GOOGLECONTACTS_H
 
 #include "Data/Data_global.h"
-#include "Data/ContactEntry.h"
 
 #include <QObject>
 #include <QString>
@@ -28,23 +27,23 @@ public:
     explicit GoogleContacts(QObject* parent);
     virtual ~GoogleContacts();
 
-    // inline implementations
     void setAccessToken(const QString& accessToken) { m_accessToken = accessToken; }
     QString getAccessToken() const { return m_accessToken; }
 
     void loadContacts();
+
+signals:
+    void contactsLoad();
 
 private slots:
     void onReplyFinished();
 
 private:
     void readFromXmlDom(const QString& body);
-    void printAllContacts() const;
 
     Database* m_database;
     QString m_accessToken;
     QNetworkAccessManager* m_networkAccessManager;
-    QList<ContactEntry*> m_contactEntries;
 };
 
 } // namespace data

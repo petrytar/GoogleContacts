@@ -32,11 +32,13 @@ private slots:
     void onAuthSuccessful();
     void onAuthFailed();
     void onLoginLoadFailed();
+    void onContactsLoad();
 
 private:
     /// Customize the appearance of dialogue
     void adjustUi();
     bool isAccessTokenEnabled() const;
+    void updateWidgetsData();
 
     Ui::MainWindow* ui;
     LoginDialog* m_loginDialog;

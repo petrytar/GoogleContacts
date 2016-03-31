@@ -31,3 +31,7 @@ LIBS += -L$$OUT_PWD/../ -lData
 
 INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../
+
+INCLUDEPATH += $$PWD/../ \
+    ../3rdParty/QxOrm/include/ \
+    ../3rdParty/
