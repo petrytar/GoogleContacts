@@ -11,7 +11,9 @@ class QNetworkAccessManager;
 
 namespace data
 {
+
 class Database;
+class User;
 
 /**
  * \brief The GoogleContacts class.
@@ -28,14 +30,15 @@ public:
     explicit GoogleContacts(QObject* parent);
     virtual ~GoogleContacts();
 
-    void setAccessToken(const QString& accessToken) { m_accessToken = accessToken; }
-    QString getAccessToken() const { return m_accessToken; }
+    void setAccessToken(const QString& accessToken);
+    QString getAccessToken() const;
     QList<ContactEntry*>& getContacts() { return m_contacts; }
 
     void loadContacts();
 
 signals:
     void contactsLoad();
+    void userDataChanged(User* user);
 
 private slots:
     void onReplyFinished();
@@ -43,10 +46,10 @@ private slots:
 private:
     void readFromXmlDom(const QString& body);
 
-    Database* m_database;
-    QString m_accessToken;
     QNetworkAccessManager* m_networkAccessManager;
     QList<ContactEntry*> m_contacts;
+    Database* m_database;
+    User* m_user;
 };
 
 } // namespace data

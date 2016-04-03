@@ -3,6 +3,7 @@
 #include "Data/debugAsserts.h"
 #include "Data/Database.h"
 #include "Data/Model/ContactProperty.h"
+#include "Data/Model/User.h"
 
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -15,11 +16,12 @@ namespace data
 
 GoogleContacts::GoogleContacts(QObject* parent) :
     BaseClass(parent),
+    m_networkAccessManager(new QNetworkAccessManager()),
     m_database(new Database()),
-    m_accessToken(""),
-    m_networkAccessManager(new QNetworkAccessManager())
+    m_user(new User())
 {
-    m_database->open();
+    m_database->open(m_user);
+    VERIFY(connect(this, SIGNAL(userDataChanged(User*)), m_database, SLOT(onUserDataChanged(User*))));
 }
 
 GoogleContacts::~GoogleContacts()
@@ -189,6 +191,20 @@ void GoogleContacts::readFromXmlDom(const QString& body)
         }
         m_contacts.push_back(contactEntry);
     }
+}
+
+void GoogleContacts::setAccessToken(const QString& accessToken)
+{
+    if (m_user->getAccessToken() != accessToken)
+    {
+        m_user->setAccessToken(accessToken);
+        emit userDataChanged(m_user);
+    }
+}
+
+QString GoogleContacts::getAccessToken() const
+{
+    return m_user->getAccessToken();
 }
 
 } // namespace data

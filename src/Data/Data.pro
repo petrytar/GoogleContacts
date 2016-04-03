@@ -6,6 +6,9 @@ TARGET      = Data
 TEMPLATE    = lib
 DEFINES    += DATA_LIBRARY
 CONFIG     += c++11
+PRECOMPILED_HEADER = stable.h
+
+unix:!macx: CONFIG   += precompile_header
 
 DESTDIR = $$OUT_PWD/..
 
@@ -36,7 +39,8 @@ HEADERS    += \
     Model/ContactEntry.h \
     Model/User.h \
     Database.h \
-    Model/ContactProperty.h
+    Model/ContactProperty.h \
+    stable.h
 
 RESOURCES += \
     ../../resources/resources.qrc

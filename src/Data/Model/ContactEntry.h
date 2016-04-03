@@ -1,10 +1,9 @@
 #ifndef DATA_CONTACTENTRY_H
 #define DATA_CONTACTENTRY_H
 
-#include "Data/Data_global.h"
+#include "Data/stable.h"
 #include "Data/Model/ContactProperty.h"
 
-#include <QxOrm.h>
 #include <QObject>
 #include <QMap>
 

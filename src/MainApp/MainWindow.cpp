@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
 bool MainWindow::isAccessTokenEnabled() const
 {
-    return false;
+    return m_authManager->getAccessToken().isEmpty() ? false : true;
 }
 
 void MainWindow::adjustUi()
@@ -48,7 +48,7 @@ void MainWindow::setup()
     }
     else
     {
-        show();
+        onAuthSuccessful();
     }
 }
 
@@ -70,7 +70,10 @@ void MainWindow::onContactsLoad()
 
 void MainWindow::onAuthSuccessful()
 {
-    m_loginDialog->close();
+    if (m_loginDialog)
+    {
+        m_loginDialog->close();
+    }
     m_googleContacts->setAccessToken(m_authManager->getAccessToken());
     QApplication::setOverrideCursor(Qt::WaitCursor);
     m_googleContacts->loadContacts();
@@ -133,22 +136,6 @@ void MainWindow::updateWidgetsData()
             m_tableModel->setData(index, nameToDisplay);
         }
     }
-    // set names
-//    setUserContactSingleValueRows(E_COLUMN_NAME, m_googleContacts->getContacts().);
-    // set lists of emails
-    QList<QStringList> phoneNumbers_0;
-    phoneNumbers_0.push_back(QStringList() << "+420 777 777 770" << "+420 777 777 771" << "+420 777 777 772");
-    QList<QStringList> phoneNumbers_1;
-    phoneNumbers_1.push_back(QStringList() << "+420 666 666 660" << "+420 666 666 661" << "+420 666 666 662");
-    QList<QStringList> phoneNumbers_2;
-    phoneNumbers_2.push_back(QStringList() << "+420 555 555 550" << "+420 555 555 551" << "+420 555 555 552");
-    setUserContactListValueRows(E_COLUMN_EMAILS, QList<QStringList>() << phoneNumbers_0 << phoneNumbers_1 << phoneNumbers_2);
-    // set lists of phone numbers
-    //    setUserContactListValueRows(E_COLUMN_PHONE_NUMBERS);
-    // set jobs
-    setUserContactSingleValueRows(E_COLUMN_JOB, QStringList() << "Build worker" << "Cleaner" << "Killer");
-    // set companies
-    setUserContactSingleValueRows(E_COLUMN_COMPANY, QStringList() << "Coca-Cola" << "Google" << "Lenovo");
 }
 
 void MainWindow::setUserContactSingleValueRows(int column, const QStringList& userContactNames)

@@ -23,13 +23,15 @@ private:
     typedef QObject BaseClass;
 
 public:
-    explicit AuthManager(QObject* parent);
+    explicit AuthManager(QObject* parent = 0);
     ~AuthManager();
 
     void start();
     QUrl generateAuthorizationRequestUrl() const;
 
+    long getId() const { return m_id; }
     QString getAccessToken() const { return m_accessToken; }
+    QString getRefreshToken() const { return m_refreshToken; }
 
 signals:
     void accessTokenReceived();
@@ -43,6 +45,7 @@ private slots:
 private:
     ushort getFreeOpenPort() const;
 
+    long m_id;
     QNetworkAccessManager* m_networkAccessManager;
     AuthServer* m_authServer;
     QString m_accessToken;

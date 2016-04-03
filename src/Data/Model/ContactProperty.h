@@ -1,10 +1,8 @@
 #ifndef DATA_CONTACTPROPERTY_H
 #define DATA_CONTACTPROPERTY_H
 
-#include "Data/Data_global.h"
-//#include "Data/Model/ContactEntry.h"
+#include "Data/stable.h"
 
-#include <QxOrm.h>
 #include <QString>
 
 namespace data
