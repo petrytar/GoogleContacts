@@ -62,8 +62,9 @@ void AuthManager::onReplyFinished()
         return;
     }
 
-    QJsonDocument json = QJsonDocument::fromJson(reply->readAll());
+    QJsonDocument json = QJsonDocument::fromJson(reply->readAll());qDebug() << json;
     m_accessToken = json.object()["access_token"].toString();
+    m_refreshToken = json.object()["refresh_token"].toString();
     emit accessTokenReceived();
 }
 

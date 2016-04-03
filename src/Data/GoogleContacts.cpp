@@ -2,7 +2,6 @@
 
 #include "Data/debugAsserts.h"
 #include "Data/Database.h"
-#include "Data/Model/ContactEntry.h"
 #include "Data/Model/ContactProperty.h"
 
 #include <QNetworkAccessManager>
@@ -18,7 +17,7 @@ GoogleContacts::GoogleContacts(QObject* parent) :
     BaseClass(parent),
     m_database(new Database()),
     m_accessToken(""),
-    m_networkAccessManager(new QNetworkAccessManager)
+    m_networkAccessManager(new QNetworkAccessManager())
 {
     m_database->open();
 }
@@ -138,7 +137,7 @@ void GoogleContacts::readFromXmlDom(const QString& body)
         QDomNodeList familyNameDomNodeList = entryList.at(i).toElement().elementsByTagName("familyName");
         if (!familyNameDomNodeList.isEmpty())
         {
-            contactEntry->setGivenName(familyNameDomNodeList.at(0).toAttr().value(), familyNameDomNodeList.at(0).toElement().text(), "familyName");
+            contactEntry->setFamilyName(familyNameDomNodeList.at(0).toAttr().value(), familyNameDomNodeList.at(0).toElement().text(), "familyName");
         }
 
         QDomNodeList emailDomNodeList = entryList.at(i).toElement().elementsByTagName("email");
@@ -188,6 +187,7 @@ void GoogleContacts::readFromXmlDom(const QString& body)
         {
             contactEntry->addGroupMembershipInfo(getAttrText(groupMembershipInfoListDomNodeList.at(i), "deleted"), getAttrText(groupMembershipInfoListDomNodeList.at(i), "href"), "groupMembershipInfo");
         }
+        m_contacts.push_back(contactEntry);
     }
 }
 

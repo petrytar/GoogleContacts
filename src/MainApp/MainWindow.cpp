@@ -4,6 +4,7 @@
 #include "Data/Auth/AuthManager.h"
 #include "Data/GoogleContacts.h"
 #include "Data/debugAsserts.h"
+#include "MainApp/ComboBoxDelegate.h"
 
 #include <QDesktopWidget>
 #include <QMessageBox>
@@ -12,7 +13,8 @@ MainWindow::MainWindow(QWidget* parent) :
     BaseClass(parent),
     ui(new Ui::MainWindow),
     m_authManager(new data::AuthManager(this)),
-    m_googleContacts(new data::GoogleContacts(this))
+    m_googleContacts(new data::GoogleContacts(this)),
+    m_tableModel(nullptr)
 {
     ui->setupUi(this);
     adjustUi();
@@ -59,6 +61,9 @@ void MainWindow::onLoginLoadFailed()
 
 void MainWindow::onContactsLoad()
 {
+    m_tableModel = new QStandardItemModel(0, E_COLUMN__END, parent());
+    ui->tableView->setModel(m_tableModel);
+
     updateWidgetsData();
     QApplication::restoreOverrideCursor();
 }
@@ -82,4 +87,85 @@ void MainWindow::onAuthFailed()
 
 void MainWindow::updateWidgetsData()
 {
+//    ComboBoxDelegate* comboBoxDelegate = new ComboBoxDelegate(names, parent());
+//    ui->tableView->setItemDelegateForColumn(1, comboBoxDelegate);
+
+//    for (int row = 0; row < 4; ++row)
+//    {
+//        for (int column = 0; column < 2; ++column)
+//        {
+//            QModelIndex index = model->index(row, column, QModelIndex());
+//            int value = (row+1) * (column+1);
+//            std::cout << "Setting (" << row << ", " << column << ") to " << value << std::endl;
+//            model->setData(index, QVariant(value));
+//        }
+//    }
+
+//    // Make the combo boxes always displayed.
+//    for ( int i = 0; i < model->rowCount(); ++i )
+//    {
+//        ui->tableView->openPersistentEditor( model->index(i, 1) );
+//    }
+    QList<data::ContactEntry*> contacts = m_googleContacts->getContacts();
+    for (int row = 0; row < contacts.size(); ++row)
+    {
+        QString nameToDisplay = contacts.at(row)->getFileAs();
+        if (nameToDisplay.isEmpty())
+        {
+            ContactPropertyPtr givenNameContactProperty = contacts.at(row)->getGivenName();
+            if (givenNameContactProperty)
+            {
+                nameToDisplay += givenNameContactProperty->getValue();
+            }
+
+            ContactPropertyPtr familyNameContactProperty = contacts.at(row)->getFamilyName();
+            if (familyNameContactProperty)
+            {
+                nameToDisplay += " " + familyNameContactProperty->getValue();
+            }
+        }
+
+        if (!nameToDisplay.isEmpty())
+        {
+            m_tableModel->insertRow(m_tableModel->rowCount());
+            QModelIndex index = m_tableModel->index(m_tableModel->rowCount() - 1, E_COLUMN_NAME_TO_DISPLAY, QModelIndex());
+            qDebug() << nameToDisplay;
+            m_tableModel->setData(index, nameToDisplay);
+        }
+    }
+    // set names
+//    setUserContactSingleValueRows(E_COLUMN_NAME, m_googleContacts->getContacts().);
+    // set lists of emails
+    QList<QStringList> phoneNumbers_0;
+    phoneNumbers_0.push_back(QStringList() << "+420 777 777 770" << "+420 777 777 771" << "+420 777 777 772");
+    QList<QStringList> phoneNumbers_1;
+    phoneNumbers_1.push_back(QStringList() << "+420 666 666 660" << "+420 666 666 661" << "+420 666 666 662");
+    QList<QStringList> phoneNumbers_2;
+    phoneNumbers_2.push_back(QStringList() << "+420 555 555 550" << "+420 555 555 551" << "+420 555 555 552");
+    setUserContactListValueRows(E_COLUMN_EMAILS, QList<QStringList>() << phoneNumbers_0 << phoneNumbers_1 << phoneNumbers_2);
+    // set lists of phone numbers
+    //    setUserContactListValueRows(E_COLUMN_PHONE_NUMBERS);
+    // set jobs
+    setUserContactSingleValueRows(E_COLUMN_JOB, QStringList() << "Build worker" << "Cleaner" << "Killer");
+    // set companies
+    setUserContactSingleValueRows(E_COLUMN_COMPANY, QStringList() << "Coca-Cola" << "Google" << "Lenovo");
+}
+
+void MainWindow::setUserContactSingleValueRows(int column, const QStringList& userContactNames)
+{
+    for (int i = 0; i < userContactNames.size(); ++i)
+    {
+        //        ui->tableView->setItem(i, column, new QTableWidgetItem(userContactNames.at(i)));
+    }
+}
+
+void MainWindow::setUserContactListValueRows(int column, const QList<QStringList>& phoneNumbersList)
+{
+    for (int i = 0; i < phoneNumbersList.size(); ++i)
+    {
+        for (int j = 0; j < phoneNumbersList.at(i).size(); ++j)
+        {
+            //            ui->tableView->setItem(i, column, new QTableWidgetItem(userContactNames.at(j)));
+        }
+    }
 }

@@ -2,6 +2,7 @@
 #define DATA_GOOGLECONTACTS_H
 
 #include "Data/Data_global.h"
+#include "Data/Model/ContactEntry.h"
 
 #include <QObject>
 #include <QString>
@@ -29,6 +30,7 @@ public:
 
     void setAccessToken(const QString& accessToken) { m_accessToken = accessToken; }
     QString getAccessToken() const { return m_accessToken; }
+    QList<ContactEntry*>& getContacts() { return m_contacts; }
 
     void loadContacts();
 
@@ -44,6 +46,7 @@ private:
     Database* m_database;
     QString m_accessToken;
     QNetworkAccessManager* m_networkAccessManager;
+    QList<ContactEntry*> m_contacts;
 };
 
 } // namespace data

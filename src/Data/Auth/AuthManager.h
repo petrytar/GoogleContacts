@@ -46,6 +46,7 @@ private:
     QNetworkAccessManager* m_networkAccessManager;
     AuthServer* m_authServer;
     QString m_accessToken;
+    QString m_refreshToken;
 };
 
 } // namespace data

@@ -12,11 +12,13 @@ win32 {
 SOURCES    += \
     MainWindow.cpp \
     Main.cpp \
-    LoginDialog.cpp
+    LoginDialog.cpp \
+    ComboBoxDelegate.cpp
 
 HEADERS    += \
     MainWindow.h \
-    LoginDialog.h
+    LoginDialog.h \
+    ComboBoxDelegate.h
 
 FORMS      += \
     MainWindow.ui \
