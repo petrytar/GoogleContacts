@@ -6,7 +6,7 @@ TARGET      = Data
 TEMPLATE    = lib
 DEFINES    += DATA_LIBRARY
 CONFIG     += c++11
-PRECOMPILED_HEADER = stable.h
+unix:!macx: PRECOMPILED_HEADER = stable.h
 
 unix:!macx: CONFIG   += precompile_header
 
@@ -16,6 +16,8 @@ win32 {
     LIBS += -L$$OUT_PWD/../../libs/win32/ -lQxOrm
 }
 unix:!macx: LIBS += -L$$PWD/../../libs/linux/QxOrm/ -lQxOrm
+
+win32: QMAKE_CXXFLAGS += -Wno-unused-parameter
 
 SOURCES    += \
     debugAsserts.cpp \

@@ -9,6 +9,8 @@ win32 {
     DESTDIR = $$OUT_PWD/..
 }
 
+win32: QMAKE_CXXFLAGS += -Wno-unused-parameter
+
 SOURCES    += \
     MainWindow.cpp \
     Main.cpp \
