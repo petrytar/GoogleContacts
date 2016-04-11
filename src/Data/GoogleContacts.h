@@ -44,6 +44,7 @@ private slots:
     void onReplyFinished();
 
 private:
+    void saveUserEmail(const QString& userEmail);
     void readFromXmlDom(const QString& body);
 
     QNetworkAccessManager* m_networkAccessManager;

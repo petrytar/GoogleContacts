@@ -78,6 +78,9 @@ void GoogleContacts::readFromXmlDom(const QString& body)
         return QString();
     };
 
+    QString userEmail = domDocument.elementsByTagName("id").at(0).toElement().text();
+    saveUserEmail(userEmail);
+
     QDomNodeList entryList = domDocument.elementsByTagName("entry");
     for (int i = 0; i < entryList.size(); ++i)
     {
@@ -205,6 +208,12 @@ void GoogleContacts::setAccessToken(const QString& accessToken)
 QString GoogleContacts::getAccessToken() const
 {
     return m_user->getAccessToken();
+}
+
+void GoogleContacts::saveUserEmail(const QString& userEmail)
+{
+    m_user->setEmail(userEmail);
+    emit userDataChanged(m_user);
 }
 
 } // namespace data
