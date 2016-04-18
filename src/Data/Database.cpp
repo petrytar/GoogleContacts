@@ -80,15 +80,7 @@ ptr<User> Database::getUser()
 
 void Database::insert(ptr<ContactEntry> contactEntry)
 {
-    qx::dao::insert(contactEntry);
-    for (ptr<ContactProperty> property : contactEntry->getEmails())
-    {
-        qx::dao::insert(property);
-    }
-    for (ptr<ContactProperty> property : contactEntry->getPhoneNumbers())
-    {
-        qx::dao::insert(property);
-    }
+    qx::dao::save_with_relation_recursive(contactEntry);
 }
 
 } // namespace data

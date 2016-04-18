@@ -51,4 +51,31 @@ ContactEntry::~ContactEntry()
 {
 }
 
+QString ContactEntry::getVisibleName() const
+{
+    if (!m_fileAs.isEmpty())
+    {
+        return m_fileAs;
+    }
+    return m_name;
+}
+
+QString ContactEntry::getPrimaryEmail() const
+{
+    if (!m_emails.isEmpty())
+    {
+        return m_emails[0]->getValue();
+    }
+    return QString();
+}
+
+QString ContactEntry::getPrimaryPhoneNumber() const
+{
+    if (!m_phoneNumbers.isEmpty())
+    {
+        return m_phoneNumbers[0]->getValue();
+    }
+    return QString();
+}
+
 } // namespace data

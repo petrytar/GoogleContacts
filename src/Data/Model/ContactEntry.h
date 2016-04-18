@@ -96,6 +96,10 @@ public:
                                 const QString& value,
                                 const QString& type) { m_groupMembershipInfoList.push_back(ContactPropertyPtr(new ContactProperty(name, value, type))); }*/
 
+    QString getVisibleName() const;
+    QString getPrimaryEmail() const;
+    QString getPrimaryPhoneNumber() const;
+
 private:
     long m_id;
     QString m_googleContactId;

@@ -1,10 +1,7 @@
 #ifndef MAINAPP_MAINWINDOW_H
 #define MAINAPP_MAINWINDOW_H
 
-#include "MainApp/LoginDialog.h"
-
 #include <QMainWindow>
-#include <QStandardItemModel>
 
 namespace data
 {
@@ -12,6 +9,8 @@ class AuthManager;
 class GoogleContacts;
 class Database;
 }
+
+class LoginDialog;
 
 namespace Ui
 {
@@ -44,8 +43,8 @@ private:
         E_COLUMN_NAME_TO_DISPLAY = E_COLUMN__BEGIN,
         E_COLUMN_EMAILS,
         E_COLUMN_PHONE_NUMBERS,
-        E_COLUMN_JOB,
-        E_COLUMN_COMPANY,
+        /*E_COLUMN_JOB,
+        E_COLUMN_COMPANY,*/
         E_COLUMN__END
     };
 
@@ -62,7 +61,6 @@ private:
     data::AuthManager* m_authManager;
     data::Database* m_database;
     data::GoogleContacts* m_googleContacts;
-    QStandardItemModel* m_tableModel;
 };
 
 #endif // MAINAPP_MAINWINDOW_H

@@ -8,6 +8,7 @@
 #include "Data/Model/ContactEntry.h"
 #include "Data/Model/User.h"
 #include "MainApp/ComboBoxDelegate.h"
+#include "MainApp/LoginDialog.h"
 
 #include <QDesktopWidget>
 #include <QMessageBox>
@@ -17,8 +18,7 @@ MainWindow::MainWindow(QWidget* parent) :
     ui(new Ui::MainWindow),
     m_authManager(new data::AuthManager(this)),
     m_database(new data::Database(this)),
-    m_googleContacts(new data::GoogleContacts(m_database, this)),
-    m_tableModel(nullptr)
+    m_googleContacts(new data::GoogleContacts(m_database, this))
 {
     ui->setupUi(this);
     adjustUi();
@@ -32,6 +32,11 @@ bool MainWindow::isAccessTokenEnabled() const
 void MainWindow::adjustUi()
 {
     setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), qApp->desktop()->availableGeometry()));
+
+    ui->entriesTreeWidget->setHeaderLabels(QStringList() << "Name" << "Email" << "Phone");
+    ui->entriesTreeWidget->setColumnWidth(E_COLUMN_NAME_TO_DISPLAY, 200);
+    ui->entriesTreeWidget->setColumnWidth(E_COLUMN_EMAILS, 150);
+    ui->entriesTreeWidget->setIndentation(0);
 }
 
 MainWindow::~MainWindow()
@@ -65,9 +70,6 @@ void MainWindow::onLoginLoadFailed()
 
 void MainWindow::onContactsLoad()
 {
-    m_tableModel = new QStandardItemModel(0, E_COLUMN__END, parent());
-    ui->tableView->setModel(m_tableModel);
-
     updateWidgetsData();
     QApplication::restoreOverrideCursor();
 }
@@ -119,29 +121,12 @@ void MainWindow::updateWidgetsData()
     QList<data::ptr<data::ContactEntry>> contacts = m_googleContacts->getContacts();
     for (int row = 0; row < contacts.size(); ++row)
     {
-        QString nameToDisplay = contacts.at(row)->getFileAs();
-        if (nameToDisplay.isEmpty())
-        {
-            nameToDisplay += contacts.at(row)->getName();
-            /*ContactPropertyPtr givenNameContactProperty = contacts.at(row)->getGivenName();
-            if (givenNameContactProperty)
-            {
-                nameToDisplay += givenNameContactProperty->getValue();
-            }
+        data::ptr<data::ContactEntry> contactEntry = contacts.at(row);
 
-            ContactPropertyPtr familyNameContactProperty = contacts.at(row)->getFamilyName();
-            if (familyNameContactProperty)
-            {
-                nameToDisplay += " " + familyNameContactProperty->getValue();
-            }*/
-        }
-
+        QString nameToDisplay = contactEntry->getVisibleName();
         if (!nameToDisplay.isEmpty())
         {
-            m_tableModel->insertRow(m_tableModel->rowCount());
-            QModelIndex index = m_tableModel->index(m_tableModel->rowCount() - 1, E_COLUMN_NAME_TO_DISPLAY, QModelIndex());
-            qDebug() << nameToDisplay;
-            m_tableModel->setData(index, nameToDisplay);
+            new QTreeWidgetItem(ui->entriesTreeWidget, QStringList() << nameToDisplay << contactEntry->getPrimaryEmail() << contactEntry->getPrimaryPhoneNumber());
         }
     }
 }
