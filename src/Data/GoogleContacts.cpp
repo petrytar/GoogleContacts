@@ -11,6 +11,7 @@
 #include <QXmlSimpleReader>
 #include <QDomDocument>
 #include <QDomElement>
+#include <QMap>
 
 namespace data
 {
@@ -21,6 +22,7 @@ GoogleContacts::GoogleContacts(Database* database, QObject* parent) :
     m_database(database)
 {
     m_database->open();
+    
     //m_user = m_database->getUser();
     //m_user = ptr<User>(new User());
     //VERIFY(connect(this, SIGNAL(userDataChanged(User*)), m_database, SLOT(onUserDataChanged(User*))));
@@ -43,22 +45,24 @@ void GoogleContacts::loadContacts()
 void GoogleContacts::onReplyFinished()
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    reply->deleteLater();
     if (reply->error() != QNetworkReply::NoError)
     {
         return;
     }
 
     QString body(reply->readAll());
-    readFromXmlDom(body);
+    QList<ptr<ContactEntry>> newContactEntries = parseContactEntries(body);
+    syncContactEntries(newContactEntries);
     emit contactsLoad();
 }
 
-void GoogleContacts::readFromXmlDom(const QString& body)
+QList<ptr<ContactEntry>> GoogleContacts::parseContactEntries(const QString& xml)
 {
     QXmlSimpleReader reader;
     QDomDocument domDocument;
     QXmlInputSource source;
-    source.setData(body);
+    source.setData(xml);
     domDocument.setContent(&source, &reader);
 
     /*auto getAttrText = [](QDomNode domNode, const QString& attrName) -> QString
@@ -89,6 +93,8 @@ void GoogleContacts::readFromXmlDom(const QString& body)
 
     QString userEmail = domDocument.elementsByTagName("id").at(0).toElement().text();
     saveUserEmail(userEmail);
+    
+    QList<ptr<ContactEntry>> contactEntries;
 
     QDomNodeList entryList = domDocument.elementsByTagName("entry");
     for (int i = 0; i < entryList.size(); ++i)
@@ -105,7 +111,9 @@ void GoogleContacts::readFromXmlDom(const QString& body)
         QDomNodeList updatedTimeDomNodeList = entryElement.elementsByTagName("updated");
         if (!updatedTimeDomNodeList.isEmpty())
         {
-            contactEntry->setUpdatedTime(updatedTimeDomNodeList.at(0).toElement().text());
+            QString timeText = updatedTimeDomNodeList.at(0).toElement().text();
+            QDateTime dateTime = QDateTime::fromString(timeText, "yyyy-MM-ddThh:mm:ss.zzzZ");
+            contactEntry->setUpdatedTime(dateTime);
         }
 
         QDomNodeList titleDomNodeList = entryElement.elementsByTagName("title");
@@ -213,9 +221,44 @@ void GoogleContacts::readFromXmlDom(const QString& body)
         {
             contactEntry->addGroupMembershipInfo(getAttrText(groupMembershipInfoListDomNodeList.at(i), "deleted"), getAttrText(groupMembershipInfoListDomNodeList.at(i), "href"), "groupMembershipInfo");
         }*/
-        m_contacts.push_back(contactEntry);
-        m_database->insert(contactEntry);
+        contactEntries.push_back(contactEntry);
+        //m_database->insert(contactEntry);
     }
+    
+    return contactEntries;
+}
+
+void GoogleContacts::syncContactEntries(QList<ptr<ContactEntry>> newContactEntries)
+{
+    QMap<QString, ptr<ContactEntry>> currentContactEntries;
+    for (ptr<ContactEntry> contactEntry : m_contactEntries)
+    {
+        currentContactEntries.insert(contactEntry->getGoogleContactId(), contactEntry);
+    }
+
+    QList<ptr<ContactEntry>> syncedContactEntries;
+
+    for (ptr<ContactEntry> newContactEntry : newContactEntries)
+    {
+        ptr<ContactEntry> currentContactEntry = currentContactEntries.value(newContactEntry->getGoogleContactId());
+        if (!currentContactEntry)
+        {
+            qDebug() << "new contact found";
+            m_database->save(newContactEntry);
+            syncedContactEntries.push_back(newContactEntry);
+        }
+        else
+        {
+            if (newContactEntry->getUpdatedTime() > currentContactEntry->getUpdatedTime())
+            {
+                qDebug() << "modified contact found";
+                m_database->update(currentContactEntry, newContactEntry);
+            }
+            syncedContactEntries.push_back(currentContactEntry);
+        }
+    }
+
+    m_contactEntries = syncedContactEntries;
 }
 
 /*void GoogleContacts::setAccessToken(const QString& accessToken)

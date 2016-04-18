@@ -65,9 +65,16 @@ void Database::open()
     contactPropertyPtr_1->setValue("777777771");
     contactPropertyPtr_1->setType("phoneNumber");
 
-    QSqlError daoError = qx::dao::insert(contactEntryPtr);
-    daoError = qx::dao::insert(contactPropertyPtr_0);
-    daoError = qx::dao::insert(contactPropertyPtr_1);*/
+    contactEntryPtr->addPhoneNumber(contactPropertyPtr_0);
+    contactEntryPtr->addPhoneNumber(contactPropertyPtr_1);
+
+    qx::dao::save_with_relation_recursive(contactEntryPtr);
+
+    QList<ContactPropertyPtr> newProperties;
+    newProperties.append(contactPropertyPtr_1);
+    contactEntryPtr->setPhoneNumbers(newProperties);
+
+    qx::dao::save_with_relation_recursive(contactEntryPtr);*/
 }
 
 ptr<User> Database::getUser()
@@ -78,9 +85,18 @@ ptr<User> Database::getUser()
     return users.empty() ? ptr<User>() : users.at(0);
 }
 
-void Database::insert(ptr<ContactEntry> contactEntry)
+void Database::save(ptr<ContactEntry> contactEntry)
 {
     qx::dao::save_with_relation_recursive(contactEntry);
+}
+
+void Database::update(ptr<ContactEntry> existingContactEntry, ptr<ContactEntry> updatedContactEntry)
+{
+    existingContactEntry->copyFrom(*updatedContactEntry.get());
+    qx::QxSqlQuery query;
+    query.where("ContactProperty.contactEntryId").isEqualTo(static_cast<int>(existingContactEntry->getId()));
+    qx::dao::delete_by_query<ContactProperty>(query);
+    save(existingContactEntry);
 }
 
 } // namespace data

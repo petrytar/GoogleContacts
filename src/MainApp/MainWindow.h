@@ -35,6 +35,8 @@ private slots:
     void onLoginLoadFailed();
     void onContactsLoad();
 
+    void on_syncButton_clicked();
+
 private:
     // helping enum for tableWidget columns
     enum EColumn

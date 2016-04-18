@@ -23,7 +23,8 @@ public:
 
     void open();
 
-    void insert(ptr<ContactEntry> contactEntry);
+    void save(ptr<ContactEntry> contactEntry);
+    void update(ptr<ContactEntry> existingContactEntry, ptr<ContactEntry> updatedContactEntry);
 
     ptr<User> getUser();
 };

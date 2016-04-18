@@ -51,6 +51,22 @@ ContactEntry::~ContactEntry()
 {
 }
 
+void ContactEntry::copyFrom(const ContactEntry& other)
+{
+    m_googleContactId = other.m_googleContactId;
+    m_updatedTime = other.m_updatedTime;
+    m_title = other.m_title;
+    m_name = other.m_name;
+    m_content = other.m_content;
+    m_nickname = other.m_nickname;
+    m_fileAs = other.m_fileAs;
+    m_orgName = other.m_orgName;
+    m_orgTitle = other.m_orgTitle;
+
+    m_emails = other.m_emails;
+    m_phoneNumbers = other.m_phoneNumbers;
+}
+
 QString ContactEntry::getVisibleName() const
 {
     if (!m_fileAs.isEmpty())

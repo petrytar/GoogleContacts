@@ -118,11 +118,11 @@ void MainWindow::updateWidgetsData()
 //    {
 //        ui->tableView->openPersistentEditor( model->index(i, 1) );
 //    }
+    ui->entriesTreeWidget->clear();
     QList<data::ptr<data::ContactEntry>> contacts = m_googleContacts->getContacts();
     for (int row = 0; row < contacts.size(); ++row)
     {
         data::ptr<data::ContactEntry> contactEntry = contacts.at(row);
-
         QString nameToDisplay = contactEntry->getVisibleName();
         if (!nameToDisplay.isEmpty())
         {
@@ -148,4 +148,10 @@ void MainWindow::setUserContactListValueRows(int column, const QList<QStringList
             //            ui->tableView->setItem(i, column, new QTableWidgetItem(userContactNames.at(j)));
         }
     }
+}
+
+void MainWindow::on_syncButton_clicked()
+{
+    m_googleContacts->loadContacts();
+    updateWidgetsData();
 }

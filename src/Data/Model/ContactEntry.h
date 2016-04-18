@@ -23,11 +23,15 @@ public:
     explicit ContactEntry();
     virtual ~ContactEntry();
 
+    void copyFrom(const ContactEntry& other);
+
+    long getId() const { return m_id; }
+
     QString getGoogleContactId() const { return m_googleContactId; }
     void setGoogleContactId(const QString& googleContactId) { m_googleContactId = googleContactId; }
 
-    QString getUpdatedTime() const { return m_updatedTime; }
-    void setUpdatedTime(const QString& updatedTime) { m_updatedTime = updatedTime; }
+    QDateTime getUpdatedTime() const { return m_updatedTime; }
+    void setUpdatedTime(const QDateTime& updatedTime) { m_updatedTime = updatedTime; }
 
     QString getTitle() const { return m_title; }
     void setTitle(const QString& title) { m_title = title; }
@@ -65,6 +69,7 @@ public:
 
     QList<ContactPropertyPtr> getPhoneNumbers() const { return m_phoneNumbers; }
     void addPhoneNumber(ContactPropertyPtr phoneNumber) { m_phoneNumbers.push_back(phoneNumber); }
+    void setPhoneNumbers(QList<ContactPropertyPtr> phoneNumbers) { m_phoneNumbers = phoneNumbers; }
 
     /*QList<ContactPropertyPtr> getIms() const { return m_ims; }
     void addIm(const QString& name,
@@ -103,7 +108,7 @@ public:
 private:
     long m_id;
     QString m_googleContactId;
-    QString m_updatedTime;
+    QDateTime m_updatedTime;
     QString m_title;
     QString m_name;
     QString m_content;

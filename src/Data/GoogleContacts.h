@@ -32,7 +32,7 @@ public:
 
     void setActiveUser(ptr<User> user) { m_activeUser = user; }
 
-    QList<ptr<ContactEntry>>& getContacts() { return m_contacts; }
+    QList<ptr<ContactEntry>>& getContacts() { return m_contactEntries; }
 
     void loadContacts();
 
@@ -46,10 +46,12 @@ private slots:
 private:
     QString getAccessToken() const;
     void saveUserEmail(const QString& userEmail);
-    void readFromXmlDom(const QString& body);
+    
+    QList<ptr<ContactEntry>> parseContactEntries(const QString& xml);
+    void syncContactEntries(QList<ptr<ContactEntry>> newContactEntries);
 
     QNetworkAccessManager* m_networkAccessManager;
-    QList<ptr<ContactEntry>> m_contacts;
+    QList<ptr<ContactEntry>> m_contactEntries;
     Database* m_database;
     ptr<User> m_activeUser;
 };
