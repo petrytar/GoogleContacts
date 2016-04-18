@@ -9,6 +9,7 @@ namespace data
 {
 
 class User;
+class ContactEntry;
 
 class Database : public QObject
 {
@@ -20,10 +21,11 @@ public:
     explicit Database(QObject* parent = 0);
     virtual ~Database();
 
-    void open(User* user);
+    void open();
 
-public slots:
-    void onUserDataChanged(User* user);
+    void insert(ptr<ContactEntry> contactEntry);
+
+    ptr<User> getUser();
 };
 
 } // namespace data

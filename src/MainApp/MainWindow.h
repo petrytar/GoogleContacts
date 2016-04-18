@@ -10,11 +10,12 @@ namespace data
 {
 class AuthManager;
 class GoogleContacts;
+class Database;
 }
 
 namespace Ui
 {
-    class MainWindow;
+class MainWindow;
 }
 
 class MainWindow : public QMainWindow
@@ -59,6 +60,7 @@ private:
     LoginDialog* m_loginDialog;
 
     data::AuthManager* m_authManager;
+    data::Database* m_database;
     data::GoogleContacts* m_googleContacts;
     QStandardItemModel* m_tableModel;
 };

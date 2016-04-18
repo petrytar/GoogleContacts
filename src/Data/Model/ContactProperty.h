@@ -1,9 +1,8 @@
 #ifndef DATA_CONTACTPROPERTY_H
 #define DATA_CONTACTPROPERTY_H
 
-#include "Data/stable.h"
-
-#include <QString>
+#include "Data/Data_global.h"
+#include <QxRegister/QxRegister.h>
 
 namespace data
 {
@@ -19,9 +18,8 @@ class ContactProperty
 {
     QX_REGISTER_FRIEND_CLASS(data::ContactProperty)
 public:
-    typedef boost::shared_ptr<ContactEntry> ContactEntryPtr;
-
-    explicit ContactProperty(const QString& name = "", const QString& value = "", const QString& type = "");
+    ContactProperty();
+    explicit ContactProperty(ptr<ContactEntry> contactEntry, const QString& name, const QString& value, const QString& type);
     virtual ~ContactProperty();
 
     QString getName() const { return m_name; }
@@ -33,21 +31,18 @@ public:
     QString getType() const { return m_type; }
     void setType(const QString& type) { m_type = type; }
 
-    void setContactEntry(ContactEntryPtr contactEntryPtr) { m_contactEntryPtr = contactEntryPtr; }
-
 private:
     long m_id;
     QString m_name;
     QString m_value;
     QString m_type;
-    ContactEntryPtr m_contactEntryPtr;
+    ptr<ContactEntry> m_contactEntry;
 };
 
 } // namespace data
 
 
-typedef boost::shared_ptr<data::ContactProperty> ContactPropertyPtr;
-typedef QList<ContactPropertyPtr> ContactPropertyList;
+typedef data::ptr<data::ContactProperty> ContactPropertyPtr;
 
 QX_REGISTER_COMPLEX_CLASS_NAME_HPP_DATA(data::ContactProperty, qx::trait::no_base_class_defined, 0, data_ContactProperty)
 

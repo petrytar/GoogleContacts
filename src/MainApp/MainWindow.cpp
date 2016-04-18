@@ -2,8 +2,11 @@
 #include "ui_MainWindow.h"
 
 #include "Data/Auth/AuthManager.h"
+#include "Data/Database.h"
 #include "Data/GoogleContacts.h"
 #include "Data/debugAsserts.h"
+#include "Data/Model/ContactEntry.h"
+#include "Data/Model/User.h"
 #include "MainApp/ComboBoxDelegate.h"
 
 #include <QDesktopWidget>
@@ -13,7 +16,8 @@ MainWindow::MainWindow(QWidget* parent) :
     BaseClass(parent),
     ui(new Ui::MainWindow),
     m_authManager(new data::AuthManager(this)),
-    m_googleContacts(new data::GoogleContacts(this)),
+    m_database(new data::Database(this)),
+    m_googleContacts(new data::GoogleContacts(m_database, this)),
     m_tableModel(nullptr)
 {
     ui->setupUi(this);
@@ -74,7 +78,10 @@ void MainWindow::onAuthSuccessful()
     {
         m_loginDialog->close();
     }
-    m_googleContacts->setAccessToken(m_authManager->getAccessToken());
+
+    data::ptr<data::User> user = data::ptr<data::User>(new data::User());
+    user->setAccessToken(m_authManager->getAccessToken());
+    m_googleContacts->setActiveUser(user);
     QApplication::setOverrideCursor(Qt::WaitCursor);
     m_googleContacts->loadContacts();
     VERIFY(connect(m_googleContacts, SIGNAL(contactsLoad()), this, SLOT(onContactsLoad())));
@@ -109,13 +116,14 @@ void MainWindow::updateWidgetsData()
 //    {
 //        ui->tableView->openPersistentEditor( model->index(i, 1) );
 //    }
-    QList<data::ContactEntry*> contacts = m_googleContacts->getContacts();
+    QList<data::ptr<data::ContactEntry>> contacts = m_googleContacts->getContacts();
     for (int row = 0; row < contacts.size(); ++row)
     {
         QString nameToDisplay = contacts.at(row)->getFileAs();
         if (nameToDisplay.isEmpty())
         {
-            ContactPropertyPtr givenNameContactProperty = contacts.at(row)->getGivenName();
+            nameToDisplay += contacts.at(row)->getName();
+            /*ContactPropertyPtr givenNameContactProperty = contacts.at(row)->getGivenName();
             if (givenNameContactProperty)
             {
                 nameToDisplay += givenNameContactProperty->getValue();
@@ -125,7 +133,7 @@ void MainWindow::updateWidgetsData()
             if (familyNameContactProperty)
             {
                 nameToDisplay += " " + familyNameContactProperty->getValue();
-            }
+            }*/
         }
 
         if (!nameToDisplay.isEmpty())

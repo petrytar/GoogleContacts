@@ -1,7 +1,7 @@
 #ifndef DATA_DATA_GLOBAL_H
 #define DATA_DATA_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <QxPrecompiled.h>
 
 #if defined(DATA_LIBRARY)
 #  define DATA_EXPORT Q_DECL_EXPORT
@@ -20,5 +20,10 @@
 #define QX_REGISTER_COMPLEX_CLASS_NAME_HPP_DATA QX_REGISTER_COMPLEX_CLASS_NAME_HPP_IMPORT_DLL
 #define QX_REGISTER_COMPLEX_CLASS_NAME_CPP_DATA QX_REGISTER_COMPLEX_CLASS_NAME_CPP_IMPORT_DLL
 #endif // DATA_LIBRARY
+
+namespace data
+{
+template <typename T> using ptr = boost::shared_ptr<T>;
+}
 
 #endif // DATA_DATA_GLOBAL_H

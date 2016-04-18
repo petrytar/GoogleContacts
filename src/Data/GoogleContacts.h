@@ -27,12 +27,12 @@ private:
     typedef QObject BaseClass;
 
 public:
-    explicit GoogleContacts(QObject* parent);
+    explicit GoogleContacts(Database* database, QObject* parent);
     virtual ~GoogleContacts();
 
-    void setAccessToken(const QString& accessToken);
-    QString getAccessToken() const;
-    QList<ContactEntry*>& getContacts() { return m_contacts; }
+    void setActiveUser(ptr<User> user) { m_activeUser = user; }
+
+    QList<ptr<ContactEntry>>& getContacts() { return m_contacts; }
 
     void loadContacts();
 
@@ -44,13 +44,14 @@ private slots:
     void onReplyFinished();
 
 private:
+    QString getAccessToken() const;
     void saveUserEmail(const QString& userEmail);
     void readFromXmlDom(const QString& body);
 
     QNetworkAccessManager* m_networkAccessManager;
-    QList<ContactEntry*> m_contacts;
+    QList<ptr<ContactEntry>> m_contacts;
     Database* m_database;
-    User* m_user;
+    ptr<User> m_activeUser;
 };
 
 } // namespace data

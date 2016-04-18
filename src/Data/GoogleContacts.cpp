@@ -10,18 +10,20 @@
 #include <QNetworkReply>
 #include <QXmlSimpleReader>
 #include <QDomDocument>
+#include <QDomElement>
 
 namespace data
 {
 
-GoogleContacts::GoogleContacts(QObject* parent) :
+GoogleContacts::GoogleContacts(Database* database, QObject* parent) :
     BaseClass(parent),
-    m_networkAccessManager(new QNetworkAccessManager()),
-    m_database(new Database()),
-    m_user(new User())
+    m_networkAccessManager(new QNetworkAccessManager(this)),
+    m_database(database)
 {
-    m_database->open(m_user);
-    VERIFY(connect(this, SIGNAL(userDataChanged(User*)), m_database, SLOT(onUserDataChanged(User*))));
+    m_database->open();
+    //m_user = m_database->getUser();
+    //m_user = ptr<User>(new User());
+    //VERIFY(connect(this, SIGNAL(userDataChanged(User*)), m_database, SLOT(onUserDataChanged(User*))));
 }
 
 GoogleContacts::~GoogleContacts()
@@ -59,7 +61,7 @@ void GoogleContacts::readFromXmlDom(const QString& body)
     source.setData(body);
     domDocument.setContent(&source, &reader);
 
-    auto getAttrText = [](QDomNode domNode, const QString& attrName) -> QString
+    /*auto getAttrText = [](QDomNode domNode, const QString& attrName) -> QString
     {
         QDomNamedNodeMap attributes = domNode.toElement().attributes();
         if (attributes.contains(attrName))
@@ -76,6 +78,13 @@ void GoogleContacts::readFromXmlDom(const QString& body)
             return domNodeList.at(0).toElement().text();
         }
         return QString();
+    };*/
+
+    auto createProperty = [](ptr<ContactEntry> parentEntry, QDomNode node, const QString& nameAttribute, const QString& valueAttribute, const QString& type) -> ContactPropertyPtr
+    {
+        QDomElement element = node.toElement();
+        ptr<ContactProperty> property(new ContactProperty(parentEntry, element.attribute(nameAttribute), element.attribute(valueAttribute), type));
+        return property;
     };
 
     QString userEmail = domDocument.elementsByTagName("id").at(0).toElement().text();
@@ -84,136 +93,149 @@ void GoogleContacts::readFromXmlDom(const QString& body)
     QDomNodeList entryList = domDocument.elementsByTagName("entry");
     for (int i = 0; i < entryList.size(); ++i)
     {
-        ContactEntry* contactEntry = new ContactEntry(parent());
-        QDomNodeList googleIdDomNodeList = entryList.at(i).toElement().elementsByTagName("id");
+        QDomElement entryElement = entryList.at(i).toElement();
+
+        ptr<ContactEntry> contactEntry(new ContactEntry());
+        QDomNodeList googleIdDomNodeList = entryElement.elementsByTagName("id");
         if (!googleIdDomNodeList.isEmpty())
         {
             contactEntry->setGoogleContactId(googleIdDomNodeList.at(0).toElement().text());
         }
 
-        QDomNodeList updatedTimeDomNodeList = entryList.at(i).toElement().elementsByTagName("updated");
+        QDomNodeList updatedTimeDomNodeList = entryElement.elementsByTagName("updated");
         if (!updatedTimeDomNodeList.isEmpty())
         {
             contactEntry->setUpdatedTime(updatedTimeDomNodeList.at(0).toElement().text());
         }
 
-        QDomNodeList titleDomNodeList = entryList.at(i).toElement().elementsByTagName("title");
+        QDomNodeList titleDomNodeList = entryElement.elementsByTagName("title");
         if (!titleDomNodeList.isEmpty())
         {
             contactEntry->setTitle(titleDomNodeList.at(0).toElement().text());
         }
 
-        QDomNodeList contentDomNodeList = entryList.at(i).toElement().elementsByTagName("content");
+        QDomNodeList contentDomNodeList = entryElement.elementsByTagName("content");
         if (!contentDomNodeList.isEmpty())
         {
             contactEntry->setContent(contentDomNodeList.at(0).toElement().text());
         }
 
-        QDomNodeList nicknameDomNodeList = entryList.at(i).toElement().elementsByTagName("nickname");
+        QDomNodeList nicknameDomNodeList = entryElement.elementsByTagName("nickname");
         if (!nicknameDomNodeList.isEmpty())
         {
             contactEntry->setNickname(nicknameDomNodeList.at(0).toElement().text());
         }
 
-        QDomNodeList fileAsDomNodeList = entryList.at(i).toElement().elementsByTagName("fileAs");
+        QDomNodeList fileAsDomNodeList = entryElement.elementsByTagName("fileAs");
         if (!fileAsDomNodeList.isEmpty())
         {
             contactEntry->setFileAs(fileAsDomNodeList.at(0).toElement().text());
         }
 
-        QDomNodeList orgNameDomNodeList = entryList.at(i).toElement().elementsByTagName("orgName");
+        QDomNodeList orgNameDomNodeList = entryElement.elementsByTagName("orgName");
         if (!orgNameDomNodeList.isEmpty())
         {
             contactEntry->setOrgName(orgNameDomNodeList.at(0).toElement().text());
         }
 
-        QDomNodeList orgTitleDomNodeList = entryList.at(i).toElement().elementsByTagName("orgTitle");
+        QDomNodeList orgTitleDomNodeList = entryElement.elementsByTagName("orgTitle");
         if (!orgTitleDomNodeList.isEmpty())
         {
             contactEntry->setOrgTitle(orgTitleDomNodeList.at(0).toElement().text());
         }
 
-        QDomNodeList givenNameDomNodeList = entryList.at(i).toElement().elementsByTagName("givenName");
+        QDomNodeList nameDomNodeList = entryElement.elementsByTagName("name");
+        if (!nameDomNodeList.isEmpty())
+        {
+            QDomNodeList fullNameDomNodeList = entryElement.elementsByTagName("fullName");
+            if (!fullNameDomNodeList.isEmpty())
+            {
+                contactEntry->setName(fullNameDomNodeList.at(0).toElement().text());
+            }
+        }
+
+        /*QDomNodeList givenNameDomNodeList = entryElement.elementsByTagName("givenName");
         if (!givenNameDomNodeList.isEmpty())
         {
             contactEntry->setGivenName(givenNameDomNodeList.at(0).toAttr().value(), givenNameDomNodeList.at(0).toElement().text(), "givenName");
         }
 
-        QDomNodeList familyNameDomNodeList = entryList.at(i).toElement().elementsByTagName("familyName");
+        QDomNodeList familyNameDomNodeList = entryElement.elementsByTagName("familyName");
         if (!familyNameDomNodeList.isEmpty())
         {
             contactEntry->setFamilyName(familyNameDomNodeList.at(0).toAttr().value(), familyNameDomNodeList.at(0).toElement().text(), "familyName");
-        }
+        }*/
 
-        QDomNodeList emailDomNodeList = entryList.at(i).toElement().elementsByTagName("email");
+        QDomNodeList emailDomNodeList = entryElement.elementsByTagName("email");
         for (int i = 0; i < emailDomNodeList.size(); ++i)
         {
-            contactEntry->addEmail(getAttrText(emailDomNodeList.at(i), "label"), getAttrText(emailDomNodeList.at(i), "address"), "email");
+            contactEntry->addEmail(createProperty(contactEntry, emailDomNodeList.at(i), "label", "address", "email"));
         }
 
-        QDomNodeList imDomNodeList = entryList.at(i).toElement().elementsByTagName("im");
+        /*QDomNodeList imDomNodeList = entryElement.elementsByTagName("im");
         for (int i = 0; i < imDomNodeList.size(); ++i)
         {
             contactEntry->addIm(getAttrText(imDomNodeList.at(i), "protocol"), getAttrText(imDomNodeList.at(i), "address"), "im");
-        }
+        }*/
 
-        QDomNodeList phoneNumberDomNodeList = entryList.at(i).toElement().elementsByTagName("phoneNumber");
+        QDomNodeList phoneNumberDomNodeList = entryElement.elementsByTagName("phoneNumber");
         for (int i = 0; i < phoneNumberDomNodeList.size(); ++i)
         {
-            contactEntry->addPhoneNumber(getAttrText(phoneNumberDomNodeList.at(i), "label"), getAttrText(phoneNumberDomNodeList.at(i), "uri"), "phoneNumber");
+            contactEntry->addPhoneNumber(createProperty(contactEntry, phoneNumberDomNodeList.at(i), "label", "uri", "phoneNumber"));
         }
 
-        QDomNodeList structuredPostalAddressDomNodeList = entryList.at(i).toElement().elementsByTagName("structuredPostalAddress");
+        /*QDomNodeList structuredPostalAddressDomNodeList = entryElement.elementsByTagName("structuredPostalAddress");
         for (int i = 0; i < structuredPostalAddressDomNodeList.size(); ++i)
         {
             contactEntry->addStructuredPostalAddress(getAttrText(structuredPostalAddressDomNodeList.at(i), "label"), getTextFromFirstListElement(structuredPostalAddressDomNodeList.at(i).toElement().elementsByTagName("formattedAddress")), "structuredPostalAddress");
         }
 
-        QDomNodeList relationDomNodeList = entryList.at(i).toElement().elementsByTagName("relation");
+        QDomNodeList relationDomNodeList = entryElement.elementsByTagName("relation");
         for (int i = 0; i < relationDomNodeList.size(); ++i)
         {
             contactEntry->addRelation(getAttrText(relationDomNodeList.at(i), "rel"), relationDomNodeList.at(i).toElement().text(), "relation");
         }
 
-        QDomNodeList userDefinedFieldDomNodeList = entryList.at(i).toElement().elementsByTagName("userDefinedField");
+        QDomNodeList userDefinedFieldDomNodeList = entryElement.elementsByTagName("userDefinedField");
         for (int i = 0; i < userDefinedFieldDomNodeList.size(); ++i)
         {
             contactEntry->addUserDefinedField(getAttrText(userDefinedFieldDomNodeList.at(i), "key"), getAttrText(userDefinedFieldDomNodeList.at(i), "value"), "userDefinedField");
         }
 
-        QDomNodeList websiteDomNodeList = entryList.at(i).toElement().elementsByTagName("website");
+        QDomNodeList websiteDomNodeList = entryElement.elementsByTagName("website");
         for (int i = 0; i < websiteDomNodeList.size(); ++i)
         {
             contactEntry->addWebsite(getAttrText(websiteDomNodeList.at(i), "label"), getAttrText(websiteDomNodeList.at(i), "href"), "website");
         }
 
-        QDomNodeList groupMembershipInfoListDomNodeList = entryList.at(i).toElement().elementsByTagName("groupMembershipInfo");
+        QDomNodeList groupMembershipInfoListDomNodeList = entryElement.elementsByTagName("groupMembershipInfo");
         for (int i = 0; i < groupMembershipInfoListDomNodeList.size(); ++i)
         {
             contactEntry->addGroupMembershipInfo(getAttrText(groupMembershipInfoListDomNodeList.at(i), "deleted"), getAttrText(groupMembershipInfoListDomNodeList.at(i), "href"), "groupMembershipInfo");
-        }
+        }*/
         m_contacts.push_back(contactEntry);
+        m_database->insert(contactEntry);
     }
 }
 
-void GoogleContacts::setAccessToken(const QString& accessToken)
+/*void GoogleContacts::setAccessToken(const QString& accessToken)
 {
     if (m_user->getAccessToken() != accessToken)
     {
         m_user->setAccessToken(accessToken);
-        emit userDataChanged(m_user);
+        //emit userDataChanged(m_user);
     }
-}
+}*/
 
 QString GoogleContacts::getAccessToken() const
 {
-    return m_user->getAccessToken();
+    return m_activeUser->getAccessToken();
 }
 
 void GoogleContacts::saveUserEmail(const QString& userEmail)
 {
-    m_user->setEmail(userEmail);
-    emit userDataChanged(m_user);
+    m_activeUser->setEmail(userEmail);
+    //emit userDataChanged(m_user);
 }
 
 } // namespace data

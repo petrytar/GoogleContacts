@@ -1,9 +1,8 @@
 #ifndef DATA_USER_H
 #define DATA_USER_H
 
-#include "Data/stable.h"
-
-#include <QString>
+#include "Data/Data_global.h"
+#include <QxRegister/QxRegister.h>
 
 namespace data
 {
@@ -13,7 +12,6 @@ class User
     QX_REGISTER_FRIEND_CLASS(data::User)
 public:
     User();
-    User(User* user);
     virtual ~User(){}
 
     long getId() const { return m_id; }
@@ -28,8 +26,6 @@ public:
     QString getRefreshToken() const { return m_refreshToken; }
     void setRefreshToken(const QString& refreshToken) { m_refreshToken = refreshToken; }
 
-    void copyFrom(User* user);
-
 private:
     long m_id;
     QString m_email;
@@ -39,8 +35,7 @@ private:
 
 } // namespace data
 
-typedef qx_shared_ptr<data::User> UserPtr;
-typedef QVector<UserPtr> VectorOfUserPtr;
+typedef data::ptr<data::User> UserPtr;
 
 QX_REGISTER_COMPLEX_CLASS_NAME_HPP_DATA(data::User, qx::trait::no_base_class_defined, 0, data_User)
 
