@@ -16,18 +16,22 @@ SOURCES    += \
     Main.cpp \
     LoginDialog.cpp \
     ComboBoxDelegate.cpp \
-    SelectUserDialog.cpp
+    SelectUserDialog.cpp \
+    EditContactEntryDialog.cpp
 
 HEADERS    += \
     MainWindow.h \
     LoginDialog.h \
     ComboBoxDelegate.h \
-    SelectUserDialog.h
+    SelectUserDialog.h \
+    EditContactEntryDialog.h \
+    MainApp_global.h
 
 FORMS      += \
     MainWindow.ui \
     LoginDialog.ui \
-    SelectUserDialog.ui
+    SelectUserDialog.ui \
+    EditContactEntryDialog.ui
 
 win32 {
     LIBS += -L$$OUT_PWD/../../libs/win32/ -llibeay32 -lssleay32

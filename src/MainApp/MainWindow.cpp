@@ -10,6 +10,7 @@
 #include "MainApp/ComboBoxDelegate.h"
 #include "MainApp/LoginDialog.h"
 #include "MainApp/SelectUserDialog.h"
+#include "MainApp/EditContactEntryDialog.h"
 
 #include <QDesktopWidget>
 #include <QMessageBox>
@@ -106,13 +107,13 @@ void MainWindow::onLoginLoadFailed()
 void MainWindow::onContactsLoad()
 {
     updateWidgetsData();
-    ui->statusBar->showMessage(QString("Successfully updated on %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-ddThh:mm:ss.zzzZ")));
+    ui->statusBar->showMessage(QString("Successfully updated on %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")));
 }
 
 void MainWindow::onContactsLoadFailed()
 {
     updateWidgetsData();
-    ui->statusBar->showMessage(QString("Failed to update on %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-ddThh:mm:ss.zzzZ")));
+    ui->statusBar->showMessage(QString("Failed to update on %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")));
 }
 
 void MainWindow::onAuthFailed()
@@ -151,9 +152,19 @@ void MainWindow::updateWidgetsData()
         QString nameToDisplay = contactEntry->getVisibleName();
         if (!nameToDisplay.isEmpty())
         {
-            new QTreeWidgetItem(ui->entriesTreeWidget, QStringList() << nameToDisplay << contactEntry->getPrimaryEmail() << contactEntry->getPrimaryPhoneNumber());
+            QTreeWidgetItem* item = new QTreeWidgetItem(ui->entriesTreeWidget);
+            item->setData(0, Qt::UserRole, QVariant::fromValue(contactEntry));
+            updateContactEntryItem(item);
         }
     }
+}
+
+void MainWindow::updateContactEntryItem(QTreeWidgetItem* item)
+{
+    data::ptr<data::ContactEntry> contactEntry = item->data(0, Qt::UserRole).value<data::ptr<data::ContactEntry>>();
+    item->setText(0, contactEntry->getVisibleName());
+    item->setText(1, contactEntry->getPrimaryEmail());
+    item->setText(2, contactEntry->getPrimaryPhoneNumber());
 }
 
 void MainWindow::setUserContactSingleValueRows(int column, const QStringList& userContactNames)
@@ -179,4 +190,23 @@ void MainWindow::on_syncButton_clicked()
 {
     m_googleContacts->loadContacts();
     updateWidgetsData();
+}
+
+void MainWindow::on_editButton_clicked()
+{
+    QTreeWidgetItem* selectedItem = ui->entriesTreeWidget->selectedItems().at(0);
+    data::ptr<data::ContactEntry> contactEntry = selectedItem->data(0, Qt::UserRole).value<data::ptr<data::ContactEntry>>();
+    EditContactEntryDialog* editContactEntryDialog = new EditContactEntryDialog(contactEntry, this);
+    auto onAccepted = [this, selectedItem, contactEntry]()
+    {
+        m_database->update(contactEntry);
+        updateContactEntryItem(selectedItem);
+    };
+    VERIFY(connect(editContactEntryDialog, &QDialog::accepted, onAccepted));
+    editContactEntryDialog->open();
+}
+
+void MainWindow::on_entriesTreeWidget_itemSelectionChanged()
+{
+    ui->editButton->setEnabled(!ui->entriesTreeWidget->selectedItems().empty());
 }

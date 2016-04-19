@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-#include "Data/Data_global.h"
+#include "MainApp/MainApp_global.h"
 
 #include <QMap>
 

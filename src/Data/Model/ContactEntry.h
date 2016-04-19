@@ -137,6 +137,7 @@ private:
 } // namespace data
 
 typedef data::ptr<data::ContactEntry> ContactEntryPtr;
+Q_DECLARE_METATYPE(data::ptr<data::ContactEntry>)
 
 QX_REGISTER_COMPLEX_CLASS_NAME_HPP_DATA(data::ContactEntry, qx::trait::no_base_class_defined, 0, data_ContactEntry)
 

@@ -37,6 +37,7 @@ QUrl AuthManager::generateAuthorizationRequestUrl() const
 
 void AuthManager::onAuthFailureReceived()
 {
+    qDebug() << "Auth declined by server";
     emit error();
 }
 
@@ -61,6 +62,7 @@ void AuthManager::onAccessTokenRequestFinished()
     reply->deleteLater();
     if (reply->error() != QNetworkReply::NoError)
     {
+        qDebug() << "onAccessTokenRequestFinished error:" << reply->error();
         emit error();
         return;
     }
@@ -85,6 +87,7 @@ void AuthManager::onEmailRequestFinished()
     reply->deleteLater();
     if (reply->error() != QNetworkReply::NoError)
     {
+        qDebug() << "onEmailRequestFinished error:" << reply->error();
         emit error();
         return;
     }

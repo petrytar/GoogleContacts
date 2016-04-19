@@ -62,6 +62,7 @@ void GoogleContacts::onReplyFinished()
 
 QList<ptr<ContactEntry>> GoogleContacts::parseContactEntries(const QString& xml)
 {
+    //std::cout << xml.toStdString() << std::endl;
     QXmlSimpleReader reader;
     QDomDocument domDocument;
     QXmlInputSource source;

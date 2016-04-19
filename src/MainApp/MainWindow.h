@@ -3,9 +3,10 @@
 
 #include <QMainWindow>
 
-#include "Data/Data_global.h"
+#include "MainApp/MainApp_global.h"
 
 class QNetworkAccessManager;
+class QTreeWidgetItem;
 
 namespace data
 {
@@ -48,6 +49,10 @@ private slots:
     void initNewUser();
     void setActiveUser(data::ptr<data::User> user);
 
+    void on_editButton_clicked();
+
+    void on_entriesTreeWidget_itemSelectionChanged();
+
 private:
     // helping enum for tableWidget columns
     enum EColumn
@@ -66,6 +71,8 @@ private:
 
     bool isAccessTokenEnabled() const;
     void updateWidgetsData();
+    void updateContactEntryItem(QTreeWidgetItem* item);
+
     void setUserContactSingleValueRows(int column, const QStringList& userContactNames);
     void setUserContactListValueRows(int column, const QList<QStringList>& phoneNumbersList);
 

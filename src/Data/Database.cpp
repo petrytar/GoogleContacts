@@ -121,4 +121,9 @@ void Database::update(ptr<ContactEntry> existingContactEntry, ptr<ContactEntry> 
     save(existingContactEntry);
 }
 
+void Database::update(ptr<ContactEntry> contactEntry)
+{
+    update(contactEntry, contactEntry);
+}
+
 } // namespace data
