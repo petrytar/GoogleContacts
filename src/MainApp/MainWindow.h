@@ -5,6 +5,8 @@
 
 #include "Data/Data_global.h"
 
+class QNetworkAccessManager;
+
 namespace data
 {
 class AuthManager;
@@ -37,7 +39,9 @@ private slots:
 
     void onAuthFailed();
     void onLoginLoadFailed();
+
     void onContactsLoad();
+    void onContactsLoadFailed();
 
     void on_syncButton_clicked();
 
@@ -68,6 +72,7 @@ private:
     Ui::MainWindow* ui;
     LoginDialog* m_loginDialog;
 
+    QNetworkAccessManager* m_networkAccessManager;
     data::AuthManager* m_authManager;
     data::Database* m_database;
     data::GoogleContacts* m_googleContacts;

@@ -27,7 +27,7 @@ private:
     typedef QObject BaseClass;
 
 public:
-    explicit GoogleContacts(Database* database, QObject* parent);
+    explicit GoogleContacts(QNetworkAccessManager* networkAccessManager, Database* database, QObject* parent);
     virtual ~GoogleContacts();
 
     void setActiveUser(ptr<User> user);
@@ -38,14 +38,13 @@ public:
 
 signals:
     void contactsLoad();
-    void userDataChanged(User* user);
+    void contactsLoadFailed();
 
 private slots:
     void onReplyFinished();
 
 private:
     QString getAccessToken() const;
-    void saveUserEmail(const QString& userEmail);
     
     QList<ptr<ContactEntry>> parseContactEntries(const QString& xml);
     void syncContactEntries(QList<ptr<ContactEntry>> newContactEntries);

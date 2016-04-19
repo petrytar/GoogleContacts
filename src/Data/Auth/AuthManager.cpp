@@ -8,9 +8,9 @@
 namespace data
 {
 
-AuthManager::AuthManager(QObject* parent) :
+AuthManager::AuthManager(QNetworkAccessManager* networkAccessManager, QObject* parent) :
     BaseClass(parent),
-    m_networkAccessManager(new QNetworkAccessManager),
+    m_networkAccessManager(networkAccessManager),
     m_authServer(new AuthServer())
 {
     VERIFY(connect(m_authServer, SIGNAL(authCodeReceived(QString)), SLOT(requestAccessToken(QString))));

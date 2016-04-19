@@ -25,7 +25,7 @@ private:
     typedef QObject BaseClass;
 
 public:
-    explicit AuthManager(QObject* parent = 0);
+    explicit AuthManager(QNetworkAccessManager* networkAccessManager, QObject* parent);
     ~AuthManager();
 
     void start();

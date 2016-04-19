@@ -2,9 +2,6 @@
 
 #include "Data/debugAsserts.h"
 
-#include <QMessageBox>
-#include <QNetworkAccessManager>
-
 namespace data
 {
 

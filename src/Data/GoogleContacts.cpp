@@ -16,9 +16,9 @@
 namespace data
 {
 
-GoogleContacts::GoogleContacts(Database* database, QObject* parent) :
+GoogleContacts::GoogleContacts(QNetworkAccessManager* networkAccessManager, Database* database, QObject* parent) :
     BaseClass(parent),
-    m_networkAccessManager(new QNetworkAccessManager(this)),
+    m_networkAccessManager(networkAccessManager),
     m_database(database)
 {
 }
@@ -49,6 +49,8 @@ void GoogleContacts::onReplyFinished()
     reply->deleteLater();
     if (reply->error() != QNetworkReply::NoError)
     {
+        qDebug() << "Reply from Contacts API ended with error:" << reply->error();
+        emit contactsLoadFailed();
         return;
     }
 
@@ -92,9 +94,6 @@ QList<ptr<ContactEntry>> GoogleContacts::parseContactEntries(const QString& xml)
         return property;
     };
 
-    QString userEmail = domDocument.elementsByTagName("id").at(0).toElement().text();
-    saveUserEmail(userEmail);
-    
     QList<ptr<ContactEntry>> contactEntries;
 
     QDomNodeList entryList = domDocument.elementsByTagName("entry");
@@ -265,24 +264,9 @@ void GoogleContacts::syncContactEntries(QList<ptr<ContactEntry>> newContactEntri
     m_contactEntries = syncedContactEntries;
 }
 
-/*void GoogleContacts::setAccessToken(const QString& accessToken)
-{
-    if (m_user->getAccessToken() != accessToken)
-    {
-        m_user->setAccessToken(accessToken);
-        //emit userDataChanged(m_user);
-    }
-}*/
-
 QString GoogleContacts::getAccessToken() const
 {
     return m_activeUser->getAccessToken();
-}
-
-void GoogleContacts::saveUserEmail(const QString& userEmail)
-{
-    m_activeUser->setEmail(userEmail);
-    //emit userDataChanged(m_user);
 }
 
 } // namespace data

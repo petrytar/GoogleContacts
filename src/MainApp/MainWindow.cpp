@@ -13,13 +13,15 @@
 
 #include <QDesktopWidget>
 #include <QMessageBox>
+#include <QNetworkAccessManager>
 
 MainWindow::MainWindow(QWidget* parent) :
     BaseClass(parent),
     ui(new Ui::MainWindow),
-    m_authManager(new data::AuthManager(this)),
+    m_networkAccessManager(new QNetworkAccessManager(this)),
+    m_authManager(new data::AuthManager(m_networkAccessManager, this)),
     m_database(new data::Database(this)),
-    m_googleContacts(new data::GoogleContacts(m_database, this))
+    m_googleContacts(new data::GoogleContacts(m_networkAccessManager, m_database, this))
 {
     ui->setupUi(this);
     adjustUi();
@@ -77,9 +79,9 @@ void MainWindow::initNewUser()
 void MainWindow::setActiveUser(data::ptr<data::User> user)
 {
     m_googleContacts->setActiveUser(user);
-    QApplication::setOverrideCursor(Qt::WaitCursor);
     m_googleContacts->loadContacts();
     VERIFY(connect(m_googleContacts, SIGNAL(contactsLoad()), this, SLOT(onContactsLoad())));
+    VERIFY(connect(m_googleContacts, SIGNAL(contactsLoadFailed()), this, SLOT(onContactsLoadFailed())));
     show();
 }
 
@@ -104,7 +106,13 @@ void MainWindow::onLoginLoadFailed()
 void MainWindow::onContactsLoad()
 {
     updateWidgetsData();
-    QApplication::restoreOverrideCursor();
+    ui->statusBar->showMessage(QString("Successfully updated on %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-ddThh:mm:ss.zzzZ")));
+}
+
+void MainWindow::onContactsLoadFailed()
+{
+    updateWidgetsData();
+    ui->statusBar->showMessage(QString("Failed to update on %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-ddThh:mm:ss.zzzZ")));
 }
 
 void MainWindow::onAuthFailed()
