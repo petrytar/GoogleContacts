@@ -30,7 +30,7 @@ public:
     explicit GoogleContacts(Database* database, QObject* parent);
     virtual ~GoogleContacts();
 
-    void setActiveUser(ptr<User> user) { m_activeUser = user; }
+    void setActiveUser(ptr<User> user);
 
     QList<ptr<ContactEntry>>& getContacts() { return m_contactEntries; }
 

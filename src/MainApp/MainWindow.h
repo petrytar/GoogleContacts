@@ -3,11 +3,14 @@
 
 #include <QMainWindow>
 
+#include "Data/Data_global.h"
+
 namespace data
 {
 class AuthManager;
 class GoogleContacts;
 class Database;
+class User;
 }
 
 class LoginDialog;
@@ -30,12 +33,16 @@ public:
     void setup();
 
 private slots:
-    void onAuthSuccessful();
+    void onNewUserInitialized(data::ptr<data::User> user);
+
     void onAuthFailed();
     void onLoginLoadFailed();
     void onContactsLoad();
 
     void on_syncButton_clicked();
+
+    void initNewUser();
+    void setActiveUser(data::ptr<data::User> user);
 
 private:
     // helping enum for tableWidget columns
@@ -52,6 +59,7 @@ private:
 
     /// Customize the appearance of dialogue
     void adjustUi();
+
     bool isAccessTokenEnabled() const;
     void updateWidgetsData();
     void setUserContactSingleValueRows(int column, const QStringList& userContactNames);

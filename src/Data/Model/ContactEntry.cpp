@@ -2,6 +2,7 @@
 
 #include "Data/debugAsserts.h"
 #include "Data/Model/ContactProperty.h"
+#include "Data/Model/User.h"
 
 #include <QxRegister/QxClass.h>
 #include <QxDao/IxPersistable.h>
@@ -17,6 +18,7 @@ template <> void register_class(QxClass<data::ContactEntry>& t)
 {
     t.setName("ContactEntry");
     t.id(&data::ContactEntry::m_id, "contactEntryId");
+    t.relationManyToOne(&data::ContactEntry::m_user, "userId");
     t.data(&data::ContactEntry::m_googleContactId, "googleContactId");
     t.data(&data::ContactEntry::m_updatedTime, "updatedTime");
     t.data(&data::ContactEntry::m_title, "title");

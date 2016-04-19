@@ -9,6 +9,7 @@
 #include "Data/Model/User.h"
 #include "MainApp/ComboBoxDelegate.h"
 #include "MainApp/LoginDialog.h"
+#include "MainApp/SelectUserDialog.h"
 
 #include <QDesktopWidget>
 #include <QMessageBox>
@@ -46,19 +47,51 @@ MainWindow::~MainWindow()
 
 void MainWindow::setup()
 {
-    if (!isAccessTokenEnabled())
+    m_database->open();
+
+    QList<data::ptr<data::User>> users = m_database->getUsers();
+    if (users.empty())
     {
-        m_authManager->start();
-        m_loginDialog = new LoginDialog(m_authManager->generateAuthorizationRequestUrl(), parentWidget());
-        VERIFY(connect(m_loginDialog, SIGNAL(loadFailed()), this, SLOT(onLoginLoadFailed())));
-        VERIFY(connect(m_authManager, SIGNAL(accessTokenReceived()), this, SLOT(onAuthSuccessful())));
-        VERIFY(connect(m_authManager, SIGNAL(error()), this, SLOT(onAuthFailed())));
-        m_loginDialog->show();
+        initNewUser();
     }
     else
     {
-        onAuthSuccessful();
+        SelectUserDialog* selectUserDialog = new SelectUserDialog(users, this);
+        VERIFY(connect(selectUserDialog, SIGNAL(newUserRequested()), this, SLOT(initNewUser())));
+        VERIFY(connect(selectUserDialog, SIGNAL(userSelected(data::ptr<data::User>)), this, SLOT(setActiveUser(data::ptr<data::User>))));
+        selectUserDialog->open();
+        qDebug() << "show selectUserDialog";
     }
+}
+
+void MainWindow::initNewUser()
+{
+    m_authManager->start();
+    m_loginDialog = new LoginDialog(m_authManager->generateAuthorizationRequestUrl(), parentWidget());
+    VERIFY(connect(m_loginDialog, SIGNAL(loadFailed()), this, SLOT(onLoginLoadFailed())));
+    VERIFY(connect(m_authManager, SIGNAL(newUserInitialiazed(data::ptr<data::User>)), this, SLOT(onNewUserInitialized(data::ptr<data::User>))));
+    VERIFY(connect(m_authManager, SIGNAL(error()), this, SLOT(onAuthFailed())));
+    m_loginDialog->show();
+}
+
+void MainWindow::setActiveUser(data::ptr<data::User> user)
+{
+    m_googleContacts->setActiveUser(user);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    m_googleContacts->loadContacts();
+    VERIFY(connect(m_googleContacts, SIGNAL(contactsLoad()), this, SLOT(onContactsLoad())));
+    show();
+}
+
+void MainWindow::onNewUserInitialized(data::ptr<data::User> user)
+{
+    if (m_loginDialog)
+    {
+        m_loginDialog->close();
+    }
+
+    m_database->saveOrGetByEmail(user);
+    setActiveUser(user);
 }
 
 void MainWindow::onLoginLoadFailed()
@@ -72,22 +105,6 @@ void MainWindow::onContactsLoad()
 {
     updateWidgetsData();
     QApplication::restoreOverrideCursor();
-}
-
-void MainWindow::onAuthSuccessful()
-{
-    if (m_loginDialog)
-    {
-        m_loginDialog->close();
-    }
-
-    data::ptr<data::User> user = data::ptr<data::User>(new data::User());
-    user->setAccessToken(m_authManager->getAccessToken());
-    m_googleContacts->setActiveUser(user);
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    m_googleContacts->loadContacts();
-    VERIFY(connect(m_googleContacts, SIGNAL(contactsLoad()), this, SLOT(onContactsLoad())));
-    show();
 }
 
 void MainWindow::onAuthFailed()

@@ -15,16 +15,19 @@ SOURCES    += \
     MainWindow.cpp \
     Main.cpp \
     LoginDialog.cpp \
-    ComboBoxDelegate.cpp
+    ComboBoxDelegate.cpp \
+    SelectUserDialog.cpp
 
 HEADERS    += \
     MainWindow.h \
     LoginDialog.h \
-    ComboBoxDelegate.h
+    ComboBoxDelegate.h \
+    SelectUserDialog.h
 
 FORMS      += \
     MainWindow.ui \
-    LoginDialog.ui
+    LoginDialog.ui \
+    SelectUserDialog.ui
 
 win32 {
     LIBS += -L$$OUT_PWD/../../libs/win32/ -llibeay32 -lssleay32

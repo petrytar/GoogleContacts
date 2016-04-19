@@ -8,6 +8,7 @@ namespace data
 {
 
 class ContactProperty;
+class User;
 typedef ptr<ContactProperty> ContactPropertyPtr;
 
 /**
@@ -26,6 +27,8 @@ public:
     void copyFrom(const ContactEntry& other);
 
     long getId() const { return m_id; }
+
+    void setUser(ptr<User> user) { m_user = user; }
 
     QString getGoogleContactId() const { return m_googleContactId; }
     void setGoogleContactId(const QString& googleContactId) { m_googleContactId = googleContactId; }
@@ -107,6 +110,7 @@ public:
 
 private:
     long m_id;
+    ptr<User> m_user;
     QString m_googleContactId;
     QDateTime m_updatedTime;
     QString m_title;

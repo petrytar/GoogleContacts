@@ -23,10 +23,12 @@ public:
 
     void open();
 
+    QList<ptr<User>> getUsers();
+    void saveOrGetByEmail(ptr<User> user);
+
+    QList<ptr<ContactEntry>> getContactEntries(ptr<User> user);
     void save(ptr<ContactEntry> contactEntry);
     void update(ptr<ContactEntry> existingContactEntry, ptr<ContactEntry> updatedContactEntry);
-
-    ptr<User> getUser();
 };
 
 } // namespace data

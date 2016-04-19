@@ -43,9 +43,9 @@ void Database::open()
         qx::dao::create_table<ContactProperty>();
     }
 
-    QSqlError daoError = qx::dao::delete_all<ContactEntry>();
+    /*QSqlError daoError = qx::dao::delete_all<ContactEntry>();
     daoError = qx::dao::delete_all<ContactProperty>();
-    daoError = qx::dao::delete_all<User>();
+    daoError = qx::dao::delete_all<User>();*/
 
     /*UserPtr user(new User());
     user->setEmail("a@b.com");
@@ -77,12 +77,34 @@ void Database::open()
     qx::dao::save_with_relation_recursive(contactEntryPtr);*/
 }
 
-ptr<User> Database::getUser()
+QList<ptr<User>> Database::getUsers()
 {
     QList<ptr<User>> users;
     qx::dao::fetch_all(users);
-    ASSERT(users.size() <= 1, "users not empty");
-    return users.empty() ? ptr<User>() : users.at(0);
+    return users;
+}
+
+void Database::saveOrGetByEmail(ptr<User> user)
+{
+    qx::QxSqlQuery query;
+    query.where("User.email").isEqualTo(user->getEmail());
+    QList<ptr<User>> users;
+    qx::dao::fetch_by_query(query, users);
+    if (!users.empty())
+    {
+        user->setId(users.at(0)->getId());
+    }
+
+    qx::dao::save(user);
+}
+
+QList<ptr<ContactEntry>> Database::getContactEntries(ptr<User> user)
+{
+    QList<ptr<ContactEntry>> contactEntries;
+    qx::QxSqlQuery query;
+    query.where("ContactEntry.userId").isEqualTo(static_cast<int>(user->getId()));
+    qx::dao::fetch_by_query_with_all_relation(query, contactEntries);
+    return contactEntries;
 }
 
 void Database::save(ptr<ContactEntry> contactEntry)

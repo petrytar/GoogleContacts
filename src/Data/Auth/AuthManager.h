@@ -2,14 +2,16 @@
 #define DATA_AUTHCONFIGS_H
 
 #include "Data/Data_global.h"
-#include "Data/Auth/AuthServer.h"
-#include "Data/GoogleContacts.h"
 
 #include <QObject>
 #include <QUrl>
+#include <QNetworkAccessManager>
 
 namespace data
 {
+
+class AuthServer;
+class User;
 
 /**
  * \brief The AuthConfigs class
@@ -34,16 +36,20 @@ public:
     QString getRefreshToken() const { return m_refreshToken; }
 
 signals:
-    void accessTokenReceived();
     void error();
+    void newUserInitialiazed(data::ptr<data::User> user);
 
 private slots:
-    void onAuthCodeReceived(const QString& accessToken);
+    void requestAccessToken(const QString& authCode);
+
     void onAuthFailureReceived();
-    void onReplyFinished();
+    void onAccessTokenRequestFinished();
+    void onEmailRequestFinished();
 
 private:
     ushort getFreeOpenPort() const;
+
+    void requestEmail();
 
     long m_id;
     QNetworkAccessManager* m_networkAccessManager;

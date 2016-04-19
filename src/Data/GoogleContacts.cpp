@@ -21,15 +21,16 @@ GoogleContacts::GoogleContacts(Database* database, QObject* parent) :
     m_networkAccessManager(new QNetworkAccessManager(this)),
     m_database(database)
 {
-    m_database->open();
-    
-    //m_user = m_database->getUser();
-    //m_user = ptr<User>(new User());
-    //VERIFY(connect(this, SIGNAL(userDataChanged(User*)), m_database, SLOT(onUserDataChanged(User*))));
 }
 
 GoogleContacts::~GoogleContacts()
 {
+}
+
+void GoogleContacts::setActiveUser(ptr<User> user)
+{
+    m_activeUser = user;
+    m_contactEntries = m_database->getContactEntries(user);
 }
 
 void GoogleContacts::loadContacts()
@@ -221,6 +222,9 @@ QList<ptr<ContactEntry>> GoogleContacts::parseContactEntries(const QString& xml)
         {
             contactEntry->addGroupMembershipInfo(getAttrText(groupMembershipInfoListDomNodeList.at(i), "deleted"), getAttrText(groupMembershipInfoListDomNodeList.at(i), "href"), "groupMembershipInfo");
         }*/
+
+        contactEntry->setUser(m_activeUser);
+
         contactEntries.push_back(contactEntry);
         //m_database->insert(contactEntry);
     }
