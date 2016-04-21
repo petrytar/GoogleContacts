@@ -31,10 +31,16 @@ public:
 private slots:
     void onSaveButtonClicked();
 
+    void on_propertiesTreeWidget_itemSelectionChanged();
+
+    void on_addButton_clicked();
+
+    void on_deleteButton_clicked();
+
 private:
     void initPropertiesTreeWidget();
-
     void fillContactProperties(const QString& categoryName, QList<data::ptr<data::ContactProperty>> properties);
+    void initPropertiesTreeWidgetItem(QTreeWidgetItem* item, data::ptr<data::ContactProperty> contactProperty);
 
     Ui::EditContactEntryDialog* ui;
 

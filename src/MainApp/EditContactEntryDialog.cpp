@@ -46,12 +46,19 @@ void EditContactEntryDialog::fillContactProperties(const QString& categoryName, 
     QTreeWidgetItem* parentItem = new QTreeWidgetItem(ui->propertiesTreeWidget, QStringList() << categoryName);
     for (data::ptr<data::ContactProperty> property : properties)
     {
-        QString labelForRelValue = data::RelValue::getLabelFromUrl(property->getLabel());
-        QString label = labelForRelValue.isEmpty() ? property->getLabel() : labelForRelValue;
-        QTreeWidgetItem* item = new QTreeWidgetItem(parentItem, QStringList() << label << property->getValue());
-        item->setData(0, Qt::UserRole, QVariant::fromValue(property));
-        item->setFlags(item->flags() | Qt::ItemIsEditable);
+        QTreeWidgetItem* item = new QTreeWidgetItem(parentItem);
+        initPropertiesTreeWidgetItem(item, property);
     }
+}
+
+void EditContactEntryDialog::initPropertiesTreeWidgetItem(QTreeWidgetItem* item, data::ptr<data::ContactProperty> property)
+{
+    QString labelForRelValue = data::RelValue::getLabelFromUrl(property->getLabel());
+    QString label = labelForRelValue.isEmpty() ? property->getLabel() : labelForRelValue;
+    item->setText(0, label);
+    item->setText(1, property->getValue());
+    item->setData(0, Qt::UserRole, QVariant::fromValue(property));
+    item->setFlags(item->flags() | Qt::ItemIsEditable);
 }
 
 void EditContactEntryDialog::onSaveButtonClicked()
@@ -62,6 +69,8 @@ void EditContactEntryDialog::onSaveButtonClicked()
     m_contactEntry->setOrgName(ui->companyEdit->text());
     m_contactEntry->setOrgTitle(ui->jobTitleEdit->text());
     m_contactEntry->setUpdatedTime(QDateTime::currentDateTime());
+
+    QList<data::ptr<data::ContactProperty>> properties;
 
     for (int i = 0; i < ui->propertiesTreeWidget->topLevelItemCount(); ++i)
     {
@@ -74,8 +83,52 @@ void EditContactEntryDialog::onSaveButtonClicked()
             QString label = urlForRelValue.isEmpty() ? item->text(0).trimmed() : urlForRelValue;
             property->setLabel(label);
             property->setValue(item->text(1).trimmed());
+            properties.append(property);
         }
     }
+    m_contactEntry->setProperties(properties);
 
     accept();
+}
+
+
+void EditContactEntryDialog::on_propertiesTreeWidget_itemSelectionChanged()
+{
+    ui->addButton->setEnabled(!ui->propertiesTreeWidget->selectedItems().empty());
+    ui->deleteButton->setEnabled(!ui->propertiesTreeWidget->selectedItems().empty() && ui->propertiesTreeWidget->selectedItems().at(0)->parent());
+}
+
+void EditContactEntryDialog::on_addButton_clicked()
+{
+    QTreeWidgetItem* item = ui->propertiesTreeWidget->selectedItems().at(0);
+    QTreeWidgetItem* topLevelItem = item->parent() ? item->parent() : item;
+    data::ContactProperty::EType type = ui->propertiesTreeWidget->indexOfTopLevelItem(topLevelItem) == 0
+            ? data::ContactProperty::E_TYPE_EMAIL
+            : data::ContactProperty::E_TYPE_PHONE_NUMBER;
+    data::ptr<data::ContactProperty> contactProperty(new data::ContactProperty(m_contactEntry, QString(), "<new>", type));
+
+    QTreeWidgetItem* newItem = new QTreeWidgetItem();
+    initPropertiesTreeWidgetItem(newItem, contactProperty);
+    if (item == topLevelItem)
+    {
+        topLevelItem->addChild(newItem);
+    }
+    else
+    {
+        topLevelItem->insertChild(topLevelItem->indexOfChild(item) + 1, newItem);
+    }
+}
+
+void EditContactEntryDialog::on_deleteButton_clicked()
+{
+    QTreeWidgetItem* item = ui->propertiesTreeWidget->selectedItems().at(0);
+    if (item->parent())
+    {
+        item->parent()->removeChild(item);
+    }
+    else
+    {
+        ui->propertiesTreeWidget->takeTopLevelItem(ui->propertiesTreeWidget->indexOfTopLevelItem(item));
+    }
+    delete item;
 }

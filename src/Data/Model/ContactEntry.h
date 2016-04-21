@@ -57,6 +57,8 @@ public:
     QString getOrgTitle() const { return m_orgTitle; }
     void setOrgTitle(const QString& orgTitle) { m_orgTitle = orgTitle; }
 
+    void setProperties(QList<ContactPropertyPtr> properties) { m_properties = properties; }
+
     QList<ContactPropertyPtr> getEmails() const;
     void addEmail(ContactPropertyPtr email) { m_properties.push_back(email); }
 
