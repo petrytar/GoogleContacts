@@ -88,10 +88,15 @@ QList<ptr<ContactEntry>> GoogleContacts::parseContactEntries(const QString& xml)
         return QString();
     };*/
 
-    auto createProperty = [](ptr<ContactEntry> parentEntry, QDomNode node, const QString& nameAttribute, const QString& valueAttribute, const QString& type) -> ContactPropertyPtr
+    auto createProperty = [](ptr<ContactEntry> parentEntry, QDomNode node, const QString& valueAttribute, ContactProperty::EType type) -> ContactPropertyPtr
     {
         QDomElement element = node.toElement();
-        ptr<ContactProperty> property(new ContactProperty(parentEntry, element.attribute(nameAttribute), element.attribute(valueAttribute), type));
+        QString label = element.attribute("rel");
+        if (label.isEmpty())
+        {
+            label = element.attribute("label");
+        }
+        ptr<ContactProperty> property(new ContactProperty(parentEntry, label, element.attribute(valueAttribute), type));
         return property;
     };
 
@@ -178,7 +183,7 @@ QList<ptr<ContactEntry>> GoogleContacts::parseContactEntries(const QString& xml)
         QDomNodeList emailDomNodeList = entryElement.elementsByTagName("email");
         for (int i = 0; i < emailDomNodeList.size(); ++i)
         {
-            contactEntry->addEmail(createProperty(contactEntry, emailDomNodeList.at(i), "label", "address", "email"));
+            contactEntry->addEmail(createProperty(contactEntry, emailDomNodeList.at(i), "address", ContactProperty::E_TYPE_EMAIL));
         }
 
         /*QDomNodeList imDomNodeList = entryElement.elementsByTagName("im");
@@ -190,7 +195,7 @@ QList<ptr<ContactEntry>> GoogleContacts::parseContactEntries(const QString& xml)
         QDomNodeList phoneNumberDomNodeList = entryElement.elementsByTagName("phoneNumber");
         for (int i = 0; i < phoneNumberDomNodeList.size(); ++i)
         {
-            contactEntry->addPhoneNumber(createProperty(contactEntry, phoneNumberDomNodeList.at(i), "label", "uri", "phoneNumber"));
+            contactEntry->addPhoneNumber(createProperty(contactEntry, phoneNumberDomNodeList.at(i), "uri", ContactProperty::E_TYPE_PHONE_NUMBER));
         }
 
         /*QDomNodeList structuredPostalAddressDomNodeList = entryElement.elementsByTagName("structuredPostalAddress");

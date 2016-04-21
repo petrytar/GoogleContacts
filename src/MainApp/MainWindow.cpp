@@ -59,7 +59,7 @@ void MainWindow::setup()
     }
     else
     {
-        SelectUserDialog* selectUserDialog = new SelectUserDialog(users, this);
+        SelectUserDialog* selectUserDialog = new SelectUserDialog(users, parentWidget());
         VERIFY(connect(selectUserDialog, SIGNAL(newUserRequested()), this, SLOT(initNewUser())));
         VERIFY(connect(selectUserDialog, SIGNAL(userSelected(data::ptr<data::User>)), this, SLOT(setActiveUser(data::ptr<data::User>))));
         selectUserDialog->open();

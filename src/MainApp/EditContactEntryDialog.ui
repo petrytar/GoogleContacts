@@ -21,6 +21,9 @@
      </property>
      <item row="6" column="0" colspan="2">
       <widget class="QTreeWidget" name="propertiesTreeWidget">
+       <property name="editTriggers">
+        <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+       </property>
        <property name="columnCount">
         <number>2</number>
        </property>

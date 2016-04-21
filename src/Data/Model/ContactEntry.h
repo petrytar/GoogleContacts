@@ -45,16 +45,6 @@ public:
     QString getContent() const { return m_content; }
     void setContent(const QString& content) { m_content = content; }
 
-    /*ContactPropertyPtr getGivenName() const { return m_givenName; }
-    void setGivenName(const QString& name,
-                      const QString& value,
-                      const QString& type) { m_givenName = ContactPropertyPtr(new ContactProperty(name, value, type)); }
-
-    ContactPropertyPtr getFamilyName() const { return m_familyName; }
-    void setFamilyName(const QString& name,
-                       const QString& value,
-                       const QString& type) { m_familyName = ContactPropertyPtr(new ContactProperty(name, value, type)); }*/
-
     QString getNickname() const { return m_nickname; }
     void setNickname(const QString& nickname) { m_nickname = nickname; }
 
@@ -67,42 +57,11 @@ public:
     QString getOrgTitle() const { return m_orgTitle; }
     void setOrgTitle(const QString& orgTitle) { m_orgTitle = orgTitle; }
 
-    QList<ContactPropertyPtr> getEmails() const { return m_emails; }
-    void addEmail(ContactPropertyPtr email) { m_emails.push_back(email); }
+    QList<ContactPropertyPtr> getEmails() const;
+    void addEmail(ContactPropertyPtr email) { m_properties.push_back(email); }
 
-    QList<ContactPropertyPtr> getPhoneNumbers() const { return m_phoneNumbers; }
-    void addPhoneNumber(ContactPropertyPtr phoneNumber) { m_phoneNumbers.push_back(phoneNumber); }
-    void setPhoneNumbers(QList<ContactPropertyPtr> phoneNumbers) { m_phoneNumbers = phoneNumbers; }
-
-    /*QList<ContactPropertyPtr> getIms() const { return m_ims; }
-    void addIm(const QString& name,
-               const QString& value,
-               const QString& type) { m_ims.push_back(ContactPropertyPtr(new ContactProperty(name, value, type))); }
-
-    QList<ContactPropertyPtr> getStructuredPostalAddresses() const { return m_structuredPostalAddresses; }
-    void addStructuredPostalAddress(const QString& name,
-                                    const QString& value,
-                                    const QString& type) { m_structuredPostalAddresses.push_back(ContactPropertyPtr(new ContactProperty(name, value, type))); }
-
-    QList<ContactPropertyPtr> getRelations() const { return m_relations; }
-    void addRelation(const QString& name,
-                     const QString& value,
-                     const QString& type) { m_relations.push_back(ContactPropertyPtr(new ContactProperty(name, value, type))); }
-
-    QList<ContactPropertyPtr> getUserDefinedFields() const { return m_userDefinedFields; }
-    void addUserDefinedField(const QString& name,
-                             const QString& value,
-                             const QString& type) { m_userDefinedFields.push_back(ContactPropertyPtr(new ContactProperty(name, value, type))); }
-
-    QList<ContactPropertyPtr> getWebsites() const { return m_websites; }
-    void addWebsite(const QString& name,
-                    const QString& value,
-                    const QString& type) { m_websites.push_back(ContactPropertyPtr(new ContactProperty(name, value, type))); }
-
-    QList<ContactPropertyPtr> getGroupMembershipInfoList() const { return m_groupMembershipInfoList; }
-    void addGroupMembershipInfo(const QString& name,
-                                const QString& value,
-                                const QString& type) { m_groupMembershipInfoList.push_back(ContactPropertyPtr(new ContactProperty(name, value, type))); }*/
+    QList<ContactPropertyPtr> getPhoneNumbers() const;
+    void addPhoneNumber(ContactPropertyPtr phoneNumber) { m_properties.push_back(phoneNumber); }
 
     QString getVisibleName() const;
     QString getPrimaryEmail() const;
@@ -121,17 +80,7 @@ private:
     QString m_orgName;
     QString m_orgTitle;
 
-    /*ContactPropertyPtr m_givenName;
-    ContactPropertyPtr m_familyName;*/
-
-    QList<ContactPropertyPtr> m_emails;
-    QList<ContactPropertyPtr> m_phoneNumbers;
-    /*QList<ContactPropertyPtr> m_ims;
-    QList<ContactPropertyPtr> m_structuredPostalAddresses;
-    QList<ContactPropertyPtr> m_relations;
-    QList<ContactPropertyPtr> m_userDefinedFields;
-    QList<ContactPropertyPtr> m_websites;
-    QList<ContactPropertyPtr> m_groupMembershipInfoList;*/
+    QList<ContactPropertyPtr> m_properties;
 };
 
 } // namespace data

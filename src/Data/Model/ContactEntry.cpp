@@ -29,17 +29,7 @@ template <> void register_class(QxClass<data::ContactEntry>& t)
     t.data(&data::ContactEntry::m_orgName, "orgName");
     t.data(&data::ContactEntry::m_orgTitle, "orgTitle");
 
-    /*t.relationOneToOne(&data::ContactEntry::m_givenName, "givenNameId");
-    t.relationOneToOne(&data::ContactEntry::m_familyName, "familyNameId");*/
-
-    t.relationOneToMany(&data::ContactEntry::m_emails, "emails", "contactEntryId");
-    t.relationOneToMany(&data::ContactEntry::m_phoneNumbers, "phoneNumbers", "contactEntryId");
-    /*t.relationOneToMany(&data::ContactEntry::m_ims, "ims", "contactEntryId");
-    t.relationOneToMany(&data::ContactEntry::m_relations, "relations", "contactEntryId");
-    t.relationOneToMany(&data::ContactEntry::m_userDefinedFields, "userDefinedFields", "contactEntryId");
-    t.relationOneToMany(&data::ContactEntry::m_websites, "websites", "contactEntryId");
-    t.relationOneToMany(&data::ContactEntry::m_structuredPostalAddresses, "structuredPostalAddresses", "contactEntryId");
-    t.relationOneToMany(&data::ContactEntry::m_groupMembershipInfoList, "groupMembershipInfoList", "contactEntryId");*/
+    t.relationOneToMany(&data::ContactEntry::m_properties, "properties", "contactEntryId");
 }}
 
 namespace data
@@ -65,8 +55,7 @@ void ContactEntry::copyFrom(const ContactEntry& other)
     m_orgName = other.m_orgName;
     m_orgTitle = other.m_orgTitle;
 
-    m_emails = other.m_emails;
-    m_phoneNumbers = other.m_phoneNumbers;
+    m_properties = other.m_properties;
 }
 
 QString ContactEntry::getVisibleName() const
@@ -78,20 +67,48 @@ QString ContactEntry::getVisibleName() const
     return m_name;
 }
 
+QList<ContactPropertyPtr> ContactEntry::getEmails() const
+{
+    QList<ContactPropertyPtr> emails;
+    for (ptr<ContactProperty> property : m_properties)
+    {
+        if (property->getType() == ContactProperty::E_TYPE_EMAIL)
+        {
+            emails << property;
+        }
+    }
+    return emails;
+}
+
+QList<ContactPropertyPtr> ContactEntry::getPhoneNumbers() const
+{
+    QList<ContactPropertyPtr> phoneNumbers;
+    for (ptr<ContactProperty> property : m_properties)
+    {
+        if (property->getType() == ContactProperty::E_TYPE_PHONE_NUMBER)
+        {
+            phoneNumbers << property;
+        }
+    }
+    return phoneNumbers;
+}
+
 QString ContactEntry::getPrimaryEmail() const
 {
-    if (!m_emails.isEmpty())
+    auto emails = getEmails();
+    if (!emails.isEmpty())
     {
-        return m_emails[0]->getValue();
+        return emails[0]->getValue();
     }
     return QString();
 }
 
 QString ContactEntry::getPrimaryPhoneNumber() const
 {
-    if (!m_phoneNumbers.isEmpty())
+    auto phoneNumbers = getPhoneNumbers();
+    if (!phoneNumbers.isEmpty())
     {
-        return m_phoneNumbers[0]->getValue();
+        return phoneNumbers[0]->getValue();
     }
     return QString();
 }

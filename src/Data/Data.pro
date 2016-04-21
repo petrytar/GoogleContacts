@@ -28,7 +28,8 @@ SOURCES    += \
     Model/ContactEntry.cpp \
     Model/User.cpp \
     Database.cpp \
-    Model/ContactProperty.cpp
+    Model/ContactProperty.cpp \
+    Model/RelValue.cpp
 
 HEADERS    += \
     debugAsserts.h \
@@ -42,7 +43,8 @@ HEADERS    += \
     Model/User.h \
     Database.h \
     Model/ContactProperty.h \
-    stable.h
+    stable.h \
+    Model/RelValue.h
 
 RESOURCES += \
     ../../resources/resources.qrc

@@ -3,6 +3,8 @@
 
 #include "Data/Model/ContactEntry.h"
 #include "Data/Model/ContactProperty.h"
+#include "Data/Model/RelValue.h"
+#include "MainApp/ContactPropertyComboBoxDelegate.h"
 
 EditContactEntryDialog::EditContactEntryDialog(data::ptr<data::ContactEntry> contactEntry, QWidget* parent) :
     QDialog(parent),
@@ -35,6 +37,8 @@ void EditContactEntryDialog::initPropertiesTreeWidget()
     fillContactProperties("Emails", m_contactEntry->getEmails());
     fillContactProperties("Phones", m_contactEntry->getPhoneNumbers());
     ui->propertiesTreeWidget->expandAll();
+
+    ui->propertiesTreeWidget->setItemDelegateForColumn(0, new ContactPropertyComboBoxDelegate(this));
 }
 
 void EditContactEntryDialog::fillContactProperties(const QString& categoryName, QList<data::ptr<data::ContactProperty>> properties)
@@ -42,7 +46,11 @@ void EditContactEntryDialog::fillContactProperties(const QString& categoryName, 
     QTreeWidgetItem* parentItem = new QTreeWidgetItem(ui->propertiesTreeWidget, QStringList() << categoryName);
     for (data::ptr<data::ContactProperty> property : properties)
     {
-        new QTreeWidgetItem(parentItem, QStringList() << property->getName() << property->getValue());
+        QString labelForRelValue = data::RelValue::getLabelFromUrl(property->getLabel());
+        QString label = labelForRelValue.isEmpty() ? property->getLabel() : labelForRelValue;
+        QTreeWidgetItem* item = new QTreeWidgetItem(parentItem, QStringList() << label << property->getValue());
+        item->setData(0, Qt::UserRole, QVariant::fromValue(property));
+        item->setFlags(item->flags() | Qt::ItemIsEditable);
     }
 }
 
@@ -54,5 +62,20 @@ void EditContactEntryDialog::onSaveButtonClicked()
     m_contactEntry->setOrgName(ui->companyEdit->text());
     m_contactEntry->setOrgTitle(ui->jobTitleEdit->text());
     m_contactEntry->setUpdatedTime(QDateTime::currentDateTime());
+
+    for (int i = 0; i < ui->propertiesTreeWidget->topLevelItemCount(); ++i)
+    {
+        auto topLevelItem = ui->propertiesTreeWidget->topLevelItem(i);
+        for (int j = 0; j < topLevelItem->childCount(); ++j)
+        {
+            auto item = topLevelItem->child(j);
+            data::ptr<data::ContactProperty> property = item->data(0, Qt::UserRole).value<data::ptr<data::ContactProperty>>();
+            QString urlForRelValue = data::RelValue::getUrlFromLabel(item->text(0).trimmed());
+            QString label = urlForRelValue.isEmpty() ? item->text(0).trimmed() : urlForRelValue;
+            property->setLabel(label);
+            property->setValue(item->text(1).trimmed());
+        }
+    }
+
     accept();
 }

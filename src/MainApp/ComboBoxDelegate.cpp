@@ -44,7 +44,7 @@ void ComboBoxDelegate::updateEditorGeometry(QWidget* editor, const QStyleOptionV
     editor->setGeometry(option.rect);
 }
 
-void ComboBoxDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+/*void ComboBoxDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
     QStyleOptionViewItemV4 myOption = option;
     QString text = m_items.at(index.row());
@@ -52,4 +52,4 @@ void ComboBoxDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
     myOption.text = text;
 
     QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &myOption, painter);
-}
+}*/

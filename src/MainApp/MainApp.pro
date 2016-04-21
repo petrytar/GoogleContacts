@@ -17,7 +17,8 @@ SOURCES    += \
     LoginDialog.cpp \
     ComboBoxDelegate.cpp \
     SelectUserDialog.cpp \
-    EditContactEntryDialog.cpp
+    EditContactEntryDialog.cpp \
+    ContactPropertyComboBoxDelegate.cpp
 
 HEADERS    += \
     MainWindow.h \
@@ -25,7 +26,8 @@ HEADERS    += \
     ComboBoxDelegate.h \
     SelectUserDialog.h \
     EditContactEntryDialog.h \
-    MainApp_global.h
+    MainApp_global.h \
+    ContactPropertyComboBoxDelegate.h
 
 FORMS      += \
     MainWindow.ui \
