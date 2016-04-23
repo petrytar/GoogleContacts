@@ -2,10 +2,14 @@
 #include "ui_SelectUserDialog.h"
 
 #include "Data/Model/User.h"
+#include "Data/Database.h"
 
-SelectUserDialog::SelectUserDialog(QList<data::ptr<data::User>> users, QWidget* parent) :
+#include <QMessageBox>
+
+SelectUserDialog::SelectUserDialog(data::Database* database, QList<data::ptr<data::User>> users, QWidget* parent) :
     QDialog(parent),
-    ui(new Ui::SelectUserDialog)
+    ui(new Ui::SelectUserDialog),
+    m_database(database)
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose);
@@ -47,10 +51,26 @@ void SelectUserDialog::on_newButton_clicked()
 
 void SelectUserDialog::on_usersTreeWidget_itemSelectionChanged()
 {
-    ui->selectButton->setEnabled(!ui->usersTreeWidget->selectedItems().empty());
+    bool hasSelectedItem = !ui->usersTreeWidget->selectedItems().empty();
+    ui->selectButton->setEnabled(hasSelectedItem);
+    ui->removeButton->setEnabled(hasSelectedItem);
 }
 
 void SelectUserDialog::on_usersTreeWidget_doubleClicked()
 {
     on_selectButton_clicked();
+}
+
+void SelectUserDialog::on_removeButton_clicked()
+{
+    QTreeWidgetItem* item = ui->usersTreeWidget->selectedItems().at(0);
+    QString selectedEmail = item->text(0);
+    int result = QMessageBox::question(this, "Remove account", QString("Do you want to remove all data associated with the following Google account: %1?").arg(selectedEmail),
+            QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
+    if (result == QMessageBox::Ok)
+    {
+        data::ptr<data::User> user = m_emailsToUsers.value(selectedEmail);
+        m_database->remove(user);
+        ui->usersTreeWidget->takeTopLevelItem(ui->usersTreeWidget->indexOfTopLevelItem(item));
+    }
 }

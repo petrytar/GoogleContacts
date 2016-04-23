@@ -53,6 +53,8 @@ private slots:
 
     void on_entriesTreeWidget_itemSelectionChanged();
 
+    void on_newButton_clicked();
+
 private:
     // helping enum for tableWidget columns
     enum EColumn

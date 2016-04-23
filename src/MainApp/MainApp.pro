@@ -48,3 +48,6 @@ DEPENDPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../ \
     ../3rdParty/QxOrm/include/ \
     ../3rdParty/
+
+RESOURCES += \
+    ../../resources/resources.qrc

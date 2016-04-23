@@ -275,4 +275,11 @@ QString GoogleContacts::getAccessToken() const
     return m_activeUser->getAccessToken();
 }
 
+void GoogleContacts::addContact(ptr<ContactEntry> contactEntry)
+{
+    contactEntry->setUser(getActiveUser());
+    m_database->save(contactEntry);
+    m_contactEntries.append(contactEntry);
+}
+
 } // namespace data

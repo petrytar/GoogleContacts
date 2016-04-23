@@ -59,7 +59,7 @@ void MainWindow::setup()
     }
     else
     {
-        SelectUserDialog* selectUserDialog = new SelectUserDialog(users, parentWidget());
+        SelectUserDialog* selectUserDialog = new SelectUserDialog(m_database, users, parentWidget());
         VERIFY(connect(selectUserDialog, SIGNAL(newUserRequested()), this, SLOT(initNewUser())));
         VERIFY(connect(selectUserDialog, SIGNAL(userSelected(data::ptr<data::User>)), this, SLOT(setActiveUser(data::ptr<data::User>))));
         selectUserDialog->open();
@@ -209,4 +209,17 @@ void MainWindow::on_editButton_clicked()
 void MainWindow::on_entriesTreeWidget_itemSelectionChanged()
 {
     ui->editButton->setEnabled(!ui->entriesTreeWidget->selectedItems().empty());
+}
+
+void MainWindow::on_newButton_clicked()
+{
+    data::ptr<data::ContactEntry> newContactEntry(new data::ContactEntry());
+    EditContactEntryDialog* editContactEntryDialog = new EditContactEntryDialog(newContactEntry, this);
+    auto onAccepted = [this, newContactEntry]()
+    {
+        m_googleContacts->addContact(newContactEntry);
+        updateWidgetsData();
+    };
+    VERIFY(connect(editContactEntryDialog, &QDialog::accepted, onAccepted));
+    editContactEntryDialog->open();
 }

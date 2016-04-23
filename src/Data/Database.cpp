@@ -98,6 +98,16 @@ void Database::saveOrGetByEmail(ptr<User> user)
     qx::dao::save(user);
 }
 
+void Database::remove(ptr<User> user)
+{
+    QList<ptr<ContactEntry>> contactEntries = getContactEntries(user);
+    for (auto contactEntry : contactEntries)
+    {
+        remove(contactEntry);
+    }
+    qx::dao::delete_by_id(user);
+}
+
 QList<ptr<ContactEntry>> Database::getContactEntries(ptr<User> user)
 {
     QList<ptr<ContactEntry>> contactEntries;
@@ -124,6 +134,14 @@ void Database::update(ptr<ContactEntry> existingContactEntry, ptr<ContactEntry> 
 void Database::update(ptr<ContactEntry> contactEntry)
 {
     update(contactEntry, contactEntry);
+}
+
+void Database::remove(ptr<ContactEntry> contactEntry)
+{
+    qx::QxSqlQuery query;
+    query.where("ContactProperty.contactEntryId").isEqualTo(static_cast<int>(contactEntry->getId()));
+    qx::dao::delete_by_query<ContactProperty>(query);
+    qx::dao::delete_by_id(contactEntry);
 }
 
 } // namespace data

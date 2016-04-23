@@ -25,11 +25,13 @@ public:
 
     QList<ptr<User>> getUsers();
     void saveOrGetByEmail(ptr<User> user);
+    void remove(ptr<User> user);
 
     QList<ptr<ContactEntry>> getContactEntries(ptr<User> user);
     void save(ptr<ContactEntry> contactEntry);
     void update(ptr<ContactEntry> existingContactEntry, ptr<ContactEntry> updatedContactEntry);
     void update(ptr<ContactEntry> contactEntry);
+    void remove(ptr<ContactEntry> contactEntry);
 };
 
 } // namespace data

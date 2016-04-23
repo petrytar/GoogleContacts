@@ -31,8 +31,10 @@ public:
     virtual ~GoogleContacts();
 
     void setActiveUser(ptr<User> user);
+    ptr<User> getActiveUser() const { return m_activeUser; }
 
     QList<ptr<ContactEntry>>& getContacts() { return m_contactEntries; }
+    void addContact(ptr<ContactEntry> contactEntry);
 
     void loadContacts();
 
