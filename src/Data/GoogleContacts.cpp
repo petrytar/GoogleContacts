@@ -240,9 +240,18 @@ QList<ptr<ContactEntry>> GoogleContacts::parseContactEntries(const QString& xml)
 void GoogleContacts::syncContactEntries(QList<ptr<ContactEntry>> newContactEntries)
 {
     QMap<QString, ptr<ContactEntry>> currentContactEntries;
+    QList<ptr<ContactEntry>> createdContactEntries;
     for (ptr<ContactEntry> contactEntry : m_contactEntries)
     {
-        currentContactEntries.insert(contactEntry->getGoogleContactId(), contactEntry);
+        QString contactId = contactEntry->getGoogleContactId();
+        if (!contactId.isEmpty())
+        {
+            currentContactEntries.insert(contactId, contactEntry);
+        }
+        else
+        {
+            createdContactEntries.append(contactEntry);
+        }
     }
 
     QList<ptr<ContactEntry>> syncedContactEntries;
@@ -266,6 +275,8 @@ void GoogleContacts::syncContactEntries(QList<ptr<ContactEntry>> newContactEntri
             syncedContactEntries.push_back(currentContactEntry);
         }
     }
+
+    syncedContactEntries.append(createdContactEntries);
 
     m_contactEntries = syncedContactEntries;
 }

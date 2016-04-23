@@ -69,6 +69,9 @@ public:
     QString getPrimaryEmail() const;
     QString getPrimaryPhoneNumber() const;
 
+    bool isDeleted() const { return m_deleted; }
+    void setDeleted(bool deleted) { m_deleted = deleted; }
+
 private:
     long m_id;
     ptr<User> m_user;
@@ -83,6 +86,8 @@ private:
     QString m_orgTitle;
 
     QList<ContactPropertyPtr> m_properties;
+
+    bool m_deleted;
 };
 
 } // namespace data

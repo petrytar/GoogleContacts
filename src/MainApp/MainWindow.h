@@ -55,6 +55,8 @@ private slots:
 
     void on_newButton_clicked();
 
+    void on_deleteButton_clicked();
+
 private:
     // helping enum for tableWidget columns
     enum EColumn

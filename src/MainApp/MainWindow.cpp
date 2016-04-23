@@ -149,6 +149,11 @@ void MainWindow::updateWidgetsData()
     for (int row = 0; row < contacts.size(); ++row)
     {
         data::ptr<data::ContactEntry> contactEntry = contacts.at(row);
+        if (contactEntry->isDeleted())
+        {
+            continue;
+        }
+
         QString nameToDisplay = contactEntry->getVisibleName();
         if (!nameToDisplay.isEmpty())
         {
@@ -208,7 +213,9 @@ void MainWindow::on_editButton_clicked()
 
 void MainWindow::on_entriesTreeWidget_itemSelectionChanged()
 {
-    ui->editButton->setEnabled(!ui->entriesTreeWidget->selectedItems().empty());
+    bool hasSelectedItem = !ui->entriesTreeWidget->selectedItems().empty();
+    ui->editButton->setEnabled(hasSelectedItem);
+    ui->deleteButton->setEnabled(hasSelectedItem);
 }
 
 void MainWindow::on_newButton_clicked()
@@ -222,4 +229,18 @@ void MainWindow::on_newButton_clicked()
     };
     VERIFY(connect(editContactEntryDialog, &QDialog::accepted, onAccepted));
     editContactEntryDialog->open();
+}
+
+void MainWindow::on_deleteButton_clicked()
+{
+    QTreeWidgetItem* selectedItem = ui->entriesTreeWidget->selectedItems().at(0);
+        int result = QMessageBox::question(this, "Delete contact", QString("Do you want to delete the selected contact entry?"),
+            QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel);
+    if (result == QMessageBox::Ok)
+    {
+        data::ptr<data::ContactEntry> contactEntry = selectedItem->data(0, Qt::UserRole).value<data::ptr<data::ContactEntry>>();
+        contactEntry->setDeleted(true);
+        m_database->save(contactEntry);
+        updateWidgetsData();
+    }
 }

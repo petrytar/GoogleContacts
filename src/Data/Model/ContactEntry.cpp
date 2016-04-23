@@ -30,12 +30,16 @@ template <> void register_class(QxClass<data::ContactEntry>& t)
     t.data(&data::ContactEntry::m_orgTitle, "orgTitle");
 
     t.relationOneToMany(&data::ContactEntry::m_properties, "properties", "contactEntryId");
+
+    t.data(&data::ContactEntry::m_deleted, "deleted");
 }}
 
 namespace data
 {
 
-ContactEntry::ContactEntry()
+ContactEntry::ContactEntry() :
+    m_id(0),
+    m_deleted(false)
 {
 }
 
@@ -56,6 +60,8 @@ void ContactEntry::copyFrom(const ContactEntry& other)
     m_orgTitle = other.m_orgTitle;
 
     m_properties = other.m_properties;
+
+    m_deleted = other.m_deleted;
 }
 
 QString ContactEntry::getVisibleName() const
