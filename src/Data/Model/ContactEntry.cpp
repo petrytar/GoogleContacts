@@ -60,7 +60,7 @@ void ContactEntry::copyFrom(const ContactEntry& other)
 
     m_properties = other.m_properties;
 
-    m_deleted = other.m_deleted;
+    //m_deleted = other.m_deleted;  //deleted must state deleted!
 }
 
 QString ContactEntry::getVisibleName() const
@@ -286,6 +286,16 @@ QString ContactEntry::toXml()
     }
 
     return document.toString(2);
+}
+
+QString ContactEntry::getGoogleContactsShortId() const
+{
+    int indexOfSlash = m_googleContactId.lastIndexOf("/");
+    if (indexOfSlash < 0)
+    {
+        return QString();
+    }
+    return m_googleContactId.mid(indexOfSlash + 1);
 }
 
 } // namespace data

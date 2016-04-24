@@ -55,12 +55,17 @@ private:
     void sendNextQueuedRequest();
     void sendCreateContactEntryRequest(ptr<ContactEntry> contactEntry);
     void processCreateContactEntryReply(ptr<ContactEntry> contactEntry, QNetworkReply* reply);
+    void sendDeleteContactEntryRequest(ptr<ContactEntry> contactEntry);
+    void processDeleteContactEntryReply(ptr<ContactEntry> contactEntry, QNetworkReply* reply);
+
+    bool finilizeAndCheckErrorsOnReply(const QString& description, QNetworkReply* reply);
 
     struct Request
     {
         enum EType
         {
-            E_TYPE_CREATE
+            E_TYPE_CREATE,
+            E_TYPE_DELETE
         };
 
         Request(EType type, ptr<ContactEntry> contactEntry) :

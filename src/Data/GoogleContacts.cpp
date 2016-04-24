@@ -86,6 +86,7 @@ QList<ptr<ContactEntry>> GoogleContacts::parseContactEntries(const QString& xml)
 void GoogleContacts::syncContactEntries(QList<ptr<ContactEntry>> newContactEntries)
 {
     m_queuedRequests.clear();
+    QList<ptr<ContactEntry>> syncedContactEntries;
 
     QMap<QString, ptr<ContactEntry>> currentContactEntries;
     QList<ptr<ContactEntry>> createdContactEntries;
@@ -94,15 +95,31 @@ void GoogleContacts::syncContactEntries(QList<ptr<ContactEntry>> newContactEntri
         QString contactId = contactEntry->getGoogleContactId();
         if (!contactId.isEmpty())
         {
+            if (contactEntry->isDeleted())
+            {
+                m_queuedRequests.push_back(Request(Request::E_TYPE_DELETE, contactEntry));
+            }
             currentContactEntries.insert(contactId, contactEntry);
         }
         else
         {
-            createdContactEntries.append(contactEntry);
+            if (contactEntry->isDeleted())
+            {
+                qDebug() << "created and then deleted contact found";
+                m_database->remove(contactEntry);
+            }
+            else
+            {
+                createdContactEntries.append(contactEntry);
+            }
         }
     }
 
-    QList<ptr<ContactEntry>> syncedContactEntries;
+    QMap<QString, ptr<ContactEntry>> newContactEntriesMap;
+    for (ptr<ContactEntry> contactEntry : newContactEntries)
+    {
+        newContactEntriesMap.insert(contactEntry->getGoogleContactId(), contactEntry);
+    }
 
     for (ptr<ContactEntry> newContactEntry : newContactEntries)
     {
@@ -121,6 +138,15 @@ void GoogleContacts::syncContactEntries(QList<ptr<ContactEntry>> newContactEntri
                 m_database->update(currentContactEntry, newContactEntry);
             }
             syncedContactEntries.push_back(currentContactEntry);
+        }
+    }
+
+    for (ptr<ContactEntry> currentContactEntry : currentContactEntries)
+    {
+        if (!newContactEntriesMap.contains(currentContactEntry->getGoogleContactId()))
+        {
+            qDebug() << "deleted contact found";
+            m_database->remove(currentContactEntry);
         }
     }
 
@@ -163,12 +189,31 @@ void GoogleContacts::sendNextQueuedRequest()
             sendCreateContactEntryRequest(nextRequest.contactEntry);
             break;
         }
+        case Request::E_TYPE_DELETE:
+        {
+            sendDeleteContactEntryRequest(nextRequest.contactEntry);
+            break;
+        }
         default:
         {
             assert(false);
             break;
         }
     }
+}
+
+bool GoogleContacts::finilizeAndCheckErrorsOnReply(const QString& description, QNetworkReply* reply)
+{
+    qDebug() << description << "finished with code:" << reply->error();
+    reply->deleteLater();
+    if (reply->error() == QNetworkReply::NoError)
+    {
+        return true;
+    }
+    qDebug() << "Error reply contents:";
+    QString xml(reply->readAll());
+    std::cout << xml.toStdString() << std::endl;
+    return false;
 }
 
 void GoogleContacts::sendCreateContactEntryRequest(ptr<ContactEntry> contactEntry)
@@ -186,27 +231,50 @@ void GoogleContacts::sendCreateContactEntryRequest(ptr<ContactEntry> contactEntr
     QNetworkReply* reply = m_networkAccessManager->post(request, xml.toUtf8());
     auto onReplyFinished = [this, reply, contactEntry]()
     {
-        reply->deleteLater();
-        processCreateContactEntryReply(contactEntry, reply);
-        sendNextQueuedRequest();
+        if (finilizeAndCheckErrorsOnReply("sendCreateContactEntryRequest", reply))
+        {
+            processCreateContactEntryReply(contactEntry, reply);
+            sendNextQueuedRequest();
+        }
     };
     VERIFY(connect(reply, &QNetworkReply::finished, onReplyFinished));
 }
 
 void GoogleContacts::processCreateContactEntryReply(ptr<ContactEntry> contactEntry, QNetworkReply* reply)
 {
-    if (reply->error() != QNetworkReply::NoError)
-    {
-        qDebug() << "onCreateContactEntryRequestFinished: Reply from Contacts API ended with error:" << reply->error();
-        return;
-    }
-
-    qDebug() << "onCreateContactEntryRequestFinished: finished successfully";
+    QDebug() << "Create contact reply:";
     QString xml(reply->readAll());
     std::cout << xml.toStdString() << std::endl;
     QList<ptr<ContactEntry>> createContactEntries = parseContactEntries(xml);
     assert(createContactEntries.size() == 1);
     m_database->update(contactEntry, createContactEntries.at(0));
+}
+
+void GoogleContacts::sendDeleteContactEntryRequest(ptr<ContactEntry> contactEntry)
+{
+    qDebug() << "Sending Delete Contact Entry request";
+
+    QNetworkRequest request(QUrl(QString("https://www.google.com/m8/feeds/contacts/default/full/") + contactEntry->getGoogleContactsShortId()));
+    request.setRawHeader("GData-Version", "3.0");
+    request.setRawHeader("Authorization", QString("Bearer %1").arg(getAccessToken()).toUtf8());
+    request.setRawHeader("If-Match", "*");
+
+    QNetworkReply* reply = m_networkAccessManager->deleteResource(request);
+    auto onReplyFinished = [this, reply, contactEntry]()
+    {
+        if (finilizeAndCheckErrorsOnReply("sendDeleteContactEntryRequest", reply))
+        {
+            processDeleteContactEntryReply(contactEntry, reply);
+            sendNextQueuedRequest();
+        }
+    };
+    VERIFY(connect(reply, &QNetworkReply::finished, onReplyFinished));
+}
+
+void GoogleContacts::processDeleteContactEntryReply(ptr<ContactEntry> contactEntry, QNetworkReply* reply)
+{
+    m_database->remove(contactEntry);
+    m_contactEntries.removeOne(contactEntry);
 }
 
 } // namespace data

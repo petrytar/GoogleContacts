@@ -33,6 +33,7 @@ public:
     void setUser(ptr<User> user) { m_user = user; }
 
     QString getGoogleContactId() const { return m_googleContactId; }
+    QString getGoogleContactsShortId() const;
     void setGoogleContactId(const QString& googleContactId) { m_googleContactId = googleContactId; }
 
     QDateTime getUpdatedTime() const { return m_updatedTime; }
