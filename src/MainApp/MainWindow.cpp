@@ -36,11 +36,6 @@ MainWindow::MainWindow(QWidget* parent) :
     VERIFY(connect(m_googleContacts, SIGNAL(otherError(QNetworkReply::NetworkError)), this, SLOT(onContactsOtherError(QNetworkReply::NetworkError))));
 }
 
-bool MainWindow::isAccessTokenEnabled() const
-{
-    return m_authManager->getAccessToken().isEmpty() ? false : true;
-}
-
 void MainWindow::adjustUi()
 {
     setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), qApp->desktop()->availableGeometry()));
@@ -149,19 +144,38 @@ void MainWindow::onInvalidRefreshToken()
 
 void MainWindow::fillContactEntriesTreeWidget()
 {
-    ui->entriesTreeWidget->clear();
     QList<data::ptr<data::ContactEntry>> contacts = m_googleContacts->getContacts();
-    for (int row = 0; row < contacts.size(); ++row)
-    {
-        data::ptr<data::ContactEntry> contactEntry = contacts.at(row);
-        if (contactEntry->isDeleted())
-        {
-            continue;
-        }
 
-        QTreeWidgetItem* item = new QTreeWidgetItem(ui->entriesTreeWidget);
-        item->setData(0, Qt::UserRole, QVariant::fromValue(contactEntry));
-        updateContactEntryItem(item);
+    std::set<data::ptr<data::ContactEntry>> newContactEntries;
+    for (auto contactEntry : contacts)
+    {
+        newContactEntries.insert(contactEntry);
+    }
+
+    std::set<data::ptr<data::ContactEntry>> displayedContactEntries;
+    for (int i = ui->entriesTreeWidget->topLevelItemCount() - 1; i >= 0; --i)
+    {
+        QTreeWidgetItem* item = ui->entriesTreeWidget->topLevelItem(i);
+        data::ptr<data::ContactEntry> contactEntry = item->data(0, Qt::UserRole).value<data::ptr<data::ContactEntry>>();
+        if (contactEntry->isDeleted() || newContactEntries.find(contactEntry) == newContactEntries.end())
+        {
+            ui->entriesTreeWidget->takeTopLevelItem(i);
+            delete item;
+        }
+        else
+        {
+            displayedContactEntries.insert(contactEntry);
+        }
+    }
+
+    for (data::ptr<data::ContactEntry> contactEntry : newContactEntries)
+    {
+        if (!contactEntry->isDeleted() && displayedContactEntries.find(contactEntry) == displayedContactEntries.end())
+        {
+            QTreeWidgetItem* item = new QTreeWidgetItem(ui->entriesTreeWidget);
+            item->setData(0, Qt::UserRole, QVariant::fromValue(contactEntry));
+            updateContactEntryItem(item);
+        }
     }
 }
 

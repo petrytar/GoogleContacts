@@ -42,7 +42,7 @@ void GoogleContacts::syncContacts()
     QNetworkReply* reply = m_networkAccessManager->get(request);
     auto onReplyFinished = [this, reply]()
     {
-        if (finilizeAndCheckErrorsOnReply("loadContacts", reply))
+        if (finalizeAndCheckErrorsOnReply("loadContacts", reply))
         {
             processGetContactsReply(reply);
         }
@@ -210,7 +210,7 @@ void GoogleContacts::sendNextQueuedRequest()
     }
 }
 
-bool GoogleContacts::finilizeAndCheckErrorsOnReply(const QString& description, QNetworkReply* reply)
+bool GoogleContacts::finalizeAndCheckErrorsOnReply(const QString& description, QNetworkReply* reply)
 {
     qDebug() << description << "finished with code:" << reply->error();
     reply->deleteLater();
@@ -248,7 +248,7 @@ void GoogleContacts::sendCreateContactEntryRequest(ptr<ContactEntry> contactEntr
     QNetworkReply* reply = m_networkAccessManager->post(request, xml.toUtf8());
     auto onReplyFinished = [this, reply, contactEntry]()
     {
-        if (finilizeAndCheckErrorsOnReply("sendCreateContactEntryRequest", reply))
+        if (finalizeAndCheckErrorsOnReply("sendCreateContactEntryRequest", reply))
         {
             processCreateContactEntryReply(contactEntry, reply);
             sendNextQueuedRequest();
@@ -279,7 +279,7 @@ void GoogleContacts::sendDeleteContactEntryRequest(ptr<ContactEntry> contactEntr
     QNetworkReply* reply = m_networkAccessManager->deleteResource(request);
     auto onReplyFinished = [this, reply, contactEntry]()
     {
-        if (finilizeAndCheckErrorsOnReply("sendDeleteContactEntryRequest", reply))
+        if (finalizeAndCheckErrorsOnReply("sendDeleteContactEntryRequest", reply))
         {
             processDeleteContactEntryReply(contactEntry, reply);
             sendNextQueuedRequest();
@@ -310,7 +310,7 @@ void GoogleContacts::sendUpdateContactEntryRequest(ptr<ContactEntry> contactEntr
     QNetworkReply* reply = m_networkAccessManager->put(request, xml.toUtf8());
     auto onReplyFinished = [this, reply, contactEntry]()
     {
-        if (finilizeAndCheckErrorsOnReply("sendUpdateContactEntryRequest", reply))
+        if (finalizeAndCheckErrorsOnReply("sendUpdateContactEntryRequest", reply))
         {
             processUpdateContactEntryReply(contactEntry, reply);
             sendNextQueuedRequest();

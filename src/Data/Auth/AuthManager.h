@@ -31,10 +31,6 @@ public:
     void start();
     QUrl generateAuthorizationRequestUrl() const;
 
-    long getId() const { return m_id; }
-    QString getAccessToken() const { return m_accessToken; }
-    QString getRefreshToken() const { return m_refreshToken; }
-
     void refreshAccessToken(const QString& refreshToken);
 
 signals:
@@ -45,24 +41,20 @@ signals:
 
 private slots:
     void requestAccessToken(const QString& authCode);
-
     void onAuthFailureReceived();
-    void onAccessTokenRequestFinished();
-    void onEmailRequestFinished();
 
 private:
     ushort getFreeOpenPort() const;
 
     void requestEmail();
-    bool finilizeAndCheckErrorsOnReply(const QString& description, QNetworkReply* reply);
+    bool finalizeAndCheckErrorsOnReply(const QString& description, QNetworkReply* reply);
 
+    void processAccessTokenRequestResult(QNetworkReply* reply);
+    void processEmailRequestResult(const QString& accessToken, const QString& refreshToken, QNetworkReply* reply);
     void processRefreshTokenRequestResult(QNetworkReply* reply);
 
-    long m_id;
     QNetworkAccessManager* m_networkAccessManager;
     AuthServer* m_authServer;
-    QString m_accessToken;
-    QString m_refreshToken;
 };
 
 } // namespace data

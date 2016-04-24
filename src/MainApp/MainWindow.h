@@ -73,7 +73,6 @@ private:
     /// Customize the appearance of dialogue
     void adjustUi();
 
-    bool isAccessTokenEnabled() const;
     void fillContactEntriesTreeWidget();
     void updateContactEntryItem(QTreeWidgetItem* item);
 

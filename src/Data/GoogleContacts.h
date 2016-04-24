@@ -61,7 +61,7 @@ private:
     void sendUpdateContactEntryRequest(ptr<ContactEntry> contactEntry);
     void processUpdateContactEntryReply(ptr<ContactEntry> contactEntry, QNetworkReply* reply);
 
-    bool finilizeAndCheckErrorsOnReply(const QString& description, QNetworkReply* reply);
+    bool finalizeAndCheckErrorsOnReply(const QString& description, QNetworkReply* reply);
 
     struct Request
     {

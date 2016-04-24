@@ -53,57 +53,48 @@ void AuthManager::requestAccessToken(const QString& authCode)
     QNetworkRequest request(QUrl(AuthSettings::getTokenUri()));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     QNetworkReply* reply = m_networkAccessManager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
-    VERIFY(connect(reply, SIGNAL(finished()), this, SLOT(onAccessTokenRequestFinished())));
+    auto onReplyFinished = [this, reply]()
+    {
+        if (finalizeAndCheckErrorsOnReply("requestAccessToken", reply))
+        {
+            processAccessTokenRequestResult(reply);
+        }
+    };
+    VERIFY(connect(reply, &QNetworkReply::finished, onReplyFinished));
 }
 
-void AuthManager::onAccessTokenRequestFinished()
+void AuthManager::processAccessTokenRequestResult(QNetworkReply* reply)
 {
-    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-    reply->deleteLater();
-    if (reply->error() != QNetworkReply::NoError)
-    {
-        qDebug() << "onAccessTokenRequestFinished error:" << reply->error();
-        emit error();
-        return;
-    }
-
     QJsonDocument json = QJsonDocument::fromJson(reply->readAll());
-    m_accessToken = json.object()["access_token"].toString();
-    m_refreshToken = json.object()["refresh_token"].toString();
+    QString accessToken = json.object()["access_token"].toString();
+    QString refreshToken = json.object()["refresh_token"].toString();
 
-    requestEmail();
-}
-
-void AuthManager::requestEmail()
-{
-    QNetworkRequest request(QUrl(QString("https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=%1").arg(m_accessToken)));;
-    QNetworkReply* reply = m_networkAccessManager->get(request);
-    VERIFY(connect(reply, SIGNAL(finished()), this, SLOT(onEmailRequestFinished())));
-}
-
-void AuthManager::onEmailRequestFinished()
-{
-    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-    reply->deleteLater();
-    if (reply->error() != QNetworkReply::NoError)
+    QNetworkRequest request(QUrl(QString("https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=%1").arg(accessToken)));;
+    QNetworkReply* emailReply = m_networkAccessManager->get(request);
+    auto onReplyFinished = [this, emailReply, accessToken, refreshToken]()
     {
-        qDebug() << "onEmailRequestFinished error:" << reply->error();
-        emit error();
-        return;
-    }
+        if (finalizeAndCheckErrorsOnReply("requestEmail", emailReply))
+        {
+            processEmailRequestResult(accessToken, refreshToken, emailReply);
+        }
+    };
+    VERIFY(connect(emailReply, &QNetworkReply::finished, onReplyFinished));
+}
 
+void AuthManager::processEmailRequestResult(const QString& accessToken, const QString& refreshToken, QNetworkReply* reply)
+{
     QJsonDocument json = QJsonDocument::fromJson(reply->readAll());
     QString email = json.object()["email"].toString();
 
     ptr<User> user(new User());
-    user->setAccessToken(m_accessToken);
-    user->setRefreshToken(m_refreshToken);
+    user->setAccessToken(accessToken);
+    user->setRefreshToken(refreshToken);
     user->setEmail(email);
 
     emit newUserInitialiazed(user);
 }
 
-bool AuthManager::finilizeAndCheckErrorsOnReply(const QString& description, QNetworkReply* reply)
+bool AuthManager::finalizeAndCheckErrorsOnReply(const QString& description, QNetworkReply* reply)
 {
     qDebug() << description << "finished with code:" << reply->error();
     reply->deleteLater();
@@ -145,7 +136,7 @@ void AuthManager::refreshAccessToken(const QString& refreshToken)
     QNetworkReply* reply = m_networkAccessManager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
     auto onReplyFinished = [this, reply]()
     {
-        if (finilizeAndCheckErrorsOnReply("refreshAccessToken", reply))
+        if (finalizeAndCheckErrorsOnReply("refreshAccessToken", reply))
         {
             processRefreshTokenRequestResult(reply);
         }
