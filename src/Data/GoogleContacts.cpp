@@ -134,8 +134,13 @@ void GoogleContacts::syncContactEntries(QList<ptr<ContactEntry>> newContactEntri
         {
             if (newContactEntry->getUpdatedTime() > currentContactEntry->getUpdatedTime())
             {
-                qDebug() << "modified contact found";
+                qDebug() << "modified (remotely) contact found";
                 m_database->update(currentContactEntry, newContactEntry);
+            }
+            else if (newContactEntry->getUpdatedTime() < currentContactEntry->getUpdatedTime())
+            {
+                qDebug() << "modified (locally) contact found";
+                m_queuedRequests.push_back(Request(Request::E_TYPE_UPDATE, currentContactEntry));
             }
             syncedContactEntries.push_back(currentContactEntry);
         }
@@ -194,6 +199,11 @@ void GoogleContacts::sendNextQueuedRequest()
             sendDeleteContactEntryRequest(nextRequest.contactEntry);
             break;
         }
+        case Request::E_TYPE_UPDATE:
+        {
+            sendUpdateContactEntryRequest(nextRequest.contactEntry);
+            break;
+        }
         default:
         {
             assert(false);
@@ -242,7 +252,7 @@ void GoogleContacts::sendCreateContactEntryRequest(ptr<ContactEntry> contactEntr
 
 void GoogleContacts::processCreateContactEntryReply(ptr<ContactEntry> contactEntry, QNetworkReply* reply)
 {
-    QDebug() << "Create contact reply:";
+    qDebug() << "Create contact reply:";
     QString xml(reply->readAll());
     std::cout << xml.toStdString() << std::endl;
     QList<ptr<ContactEntry>> createContactEntries = parseContactEntries(xml);
@@ -275,6 +285,42 @@ void GoogleContacts::processDeleteContactEntryReply(ptr<ContactEntry> contactEnt
 {
     m_database->remove(contactEntry);
     m_contactEntries.removeOne(contactEntry);
+}
+
+
+void GoogleContacts::sendUpdateContactEntryRequest(ptr<ContactEntry> contactEntry)
+{
+    qDebug() << "Sending Update Contact Entry request";
+
+    QNetworkRequest request(QUrl(QString("https://www.google.com/m8/feeds/contacts/default/full/") + contactEntry->getGoogleContactsShortId()));
+    request.setRawHeader("GData-Version", "3.0");
+    request.setRawHeader("Authorization", QString("Bearer %1").arg(getAccessToken()).toUtf8());
+    request.setRawHeader("Content-Type", "application/atom+xml");
+    request.setRawHeader("If-Match", "*");
+
+    QString xml = contactEntry->toXml();
+    std::cout << xml.toStdString() << std::endl;
+
+    QNetworkReply* reply = m_networkAccessManager->put(request, xml.toUtf8());
+    auto onReplyFinished = [this, reply, contactEntry]()
+    {
+        if (finilizeAndCheckErrorsOnReply("sendUpdateContactEntryRequest", reply))
+        {
+            processUpdateContactEntryReply(contactEntry, reply);
+            sendNextQueuedRequest();
+        }
+    };
+    VERIFY(connect(reply, &QNetworkReply::finished, onReplyFinished));
+}
+
+void GoogleContacts::processUpdateContactEntryReply(ptr<ContactEntry> contactEntry, QNetworkReply* reply)
+{
+    qDebug() << "Update contact reply:";
+    QString xml(reply->readAll());
+    std::cout << xml.toStdString() << std::endl;
+    QList<ptr<ContactEntry>> updatedContactEntries = parseContactEntries(xml);
+    assert(updatedContactEntries.size() == 1);
+    m_database->update(contactEntry, updatedContactEntries.at(0));
 }
 
 } // namespace data

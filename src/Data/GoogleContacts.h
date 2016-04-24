@@ -57,6 +57,8 @@ private:
     void processCreateContactEntryReply(ptr<ContactEntry> contactEntry, QNetworkReply* reply);
     void sendDeleteContactEntryRequest(ptr<ContactEntry> contactEntry);
     void processDeleteContactEntryReply(ptr<ContactEntry> contactEntry, QNetworkReply* reply);
+    void sendUpdateContactEntryRequest(ptr<ContactEntry> contactEntry);
+    void processUpdateContactEntryReply(ptr<ContactEntry> contactEntry, QNetworkReply* reply);
 
     bool finilizeAndCheckErrorsOnReply(const QString& description, QNetworkReply* reply);
 
@@ -65,7 +67,8 @@ private:
         enum EType
         {
             E_TYPE_CREATE,
-            E_TYPE_DELETE
+            E_TYPE_DELETE,
+            E_TYPE_UPDATE
         };
 
         Request(EType type, ptr<ContactEntry> contactEntry) :
