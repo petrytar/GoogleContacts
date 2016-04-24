@@ -4,6 +4,8 @@
 #include "Data/Data_global.h"
 #include <QxRegister/QxRegister.h>
 
+class QDomElement;
+
 namespace data
 {
 
@@ -36,14 +38,8 @@ public:
     QDateTime getUpdatedTime() const { return m_updatedTime; }
     void setUpdatedTime(const QDateTime& updatedTime) { m_updatedTime = updatedTime; }
 
-    QString getTitle() const { return m_title; }
-    void setTitle(const QString& title) { m_title = title; }
-
     QString getName() const { return m_name; }
     void setName(const QString& name) { m_name = name; }
-
-    QString getContent() const { return m_content; }
-    void setContent(const QString& content) { m_content = content; }
 
     QString getNickname() const { return m_nickname; }
     void setNickname(const QString& nickname) { m_nickname = nickname; }
@@ -72,14 +68,15 @@ public:
     bool isDeleted() const { return m_deleted; }
     void setDeleted(bool deleted) { m_deleted = deleted; }
 
+    static void fromXml(ptr<ContactEntry> contactEntry, const QDomElement& contactEntryElement);
+    QString toXml();
+
 private:
     long m_id;
     ptr<User> m_user;
     QString m_googleContactId;
     QDateTime m_updatedTime;
-    QString m_title;
     QString m_name;
-    QString m_content;
     QString m_nickname;
     QString m_fileAs;
     QString m_orgName;

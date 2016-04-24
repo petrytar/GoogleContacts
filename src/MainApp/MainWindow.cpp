@@ -106,13 +106,13 @@ void MainWindow::onLoginLoadFailed()
 
 void MainWindow::onContactsLoad()
 {
-    updateWidgetsData();
+    fillContactEntriesTreeWidget();
     ui->statusBar->showMessage(QString("Successfully updated on %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")));
 }
 
 void MainWindow::onContactsLoadFailed()
 {
-    updateWidgetsData();
+    fillContactEntriesTreeWidget();
     ui->statusBar->showMessage(QString("Failed to update on %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")));
 }
 
@@ -123,27 +123,8 @@ void MainWindow::onAuthFailed()
     exit(-1);
 }
 
-void MainWindow::updateWidgetsData()
+void MainWindow::fillContactEntriesTreeWidget()
 {
-//    ComboBoxDelegate* comboBoxDelegate = new ComboBoxDelegate(names, parent());
-//    ui->tableView->setItemDelegateForColumn(1, comboBoxDelegate);
-
-//    for (int row = 0; row < 4; ++row)
-//    {
-//        for (int column = 0; column < 2; ++column)
-//        {
-//            QModelIndex index = model->index(row, column, QModelIndex());
-//            int value = (row+1) * (column+1);
-//            std::cout << "Setting (" << row << ", " << column << ") to " << value << std::endl;
-//            model->setData(index, QVariant(value));
-//        }
-//    }
-
-//    // Make the combo boxes always displayed.
-//    for ( int i = 0; i < model->rowCount(); ++i )
-//    {
-//        ui->tableView->openPersistentEditor( model->index(i, 1) );
-//    }
     ui->entriesTreeWidget->clear();
     QList<data::ptr<data::ContactEntry>> contacts = m_googleContacts->getContacts();
     for (int row = 0; row < contacts.size(); ++row)
@@ -154,13 +135,9 @@ void MainWindow::updateWidgetsData()
             continue;
         }
 
-        QString nameToDisplay = contactEntry->getVisibleName();
-        if (!nameToDisplay.isEmpty())
-        {
-            QTreeWidgetItem* item = new QTreeWidgetItem(ui->entriesTreeWidget);
-            item->setData(0, Qt::UserRole, QVariant::fromValue(contactEntry));
-            updateContactEntryItem(item);
-        }
+        QTreeWidgetItem* item = new QTreeWidgetItem(ui->entriesTreeWidget);
+        item->setData(0, Qt::UserRole, QVariant::fromValue(contactEntry));
+        updateContactEntryItem(item);
     }
 }
 
@@ -194,7 +171,7 @@ void MainWindow::setUserContactListValueRows(int column, const QList<QStringList
 void MainWindow::on_syncButton_clicked()
 {
     m_googleContacts->loadContacts();
-    updateWidgetsData();
+    fillContactEntriesTreeWidget();
 }
 
 void MainWindow::on_editButton_clicked()
@@ -225,7 +202,7 @@ void MainWindow::on_newButton_clicked()
     auto onAccepted = [this, newContactEntry]()
     {
         m_googleContacts->addContact(newContactEntry);
-        updateWidgetsData();
+        fillContactEntriesTreeWidget();
     };
     VERIFY(connect(editContactEntryDialog, &QDialog::accepted, onAccepted));
     editContactEntryDialog->open();
@@ -241,6 +218,6 @@ void MainWindow::on_deleteButton_clicked()
         data::ptr<data::ContactEntry> contactEntry = selectedItem->data(0, Qt::UserRole).value<data::ptr<data::ContactEntry>>();
         contactEntry->setDeleted(true);
         m_database->save(contactEntry);
-        updateWidgetsData();
+        fillContactEntriesTreeWidget();
     }
 }

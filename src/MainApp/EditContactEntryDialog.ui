@@ -166,6 +166,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>nameEdit</tabstop>
+  <tabstop>nicknameEdit</tabstop>
+  <tabstop>fileAsEdit</tabstop>
+  <tabstop>companyEdit</tabstop>
+  <tabstop>jobTitleEdit</tabstop>
+  <tabstop>propertiesTreeWidget</tabstop>
+  <tabstop>addButton</tabstop>
+  <tabstop>deleteButton</tabstop>
+ </tabstops>
  <resources>
   <include location="../../resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>

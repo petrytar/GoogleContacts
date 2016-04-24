@@ -8,6 +8,7 @@
 #include <QString>
 
 class QNetworkAccessManager;
+class QNetworkReply;
 
 namespace data
 {
@@ -51,10 +52,32 @@ private:
     QList<ptr<ContactEntry>> parseContactEntries(const QString& xml);
     void syncContactEntries(QList<ptr<ContactEntry>> newContactEntries);
 
+    void sendNextQueuedRequest();
+    void sendCreateContactEntryRequest(ptr<ContactEntry> contactEntry);
+    void processCreateContactEntryReply(ptr<ContactEntry> contactEntry, QNetworkReply* reply);
+
+    struct Request
+    {
+        enum EType
+        {
+            E_TYPE_CREATE
+        };
+
+        Request(EType type, ptr<ContactEntry> contactEntry) :
+            type(type),
+            contactEntry(contactEntry)
+        {}
+
+        EType type;
+        ptr<ContactEntry> contactEntry;
+    };
+
     QNetworkAccessManager* m_networkAccessManager;
     QList<ptr<ContactEntry>> m_contactEntries;
     Database* m_database;
     ptr<User> m_activeUser;
+
+    QList<Request> m_queuedRequests;
 };
 
 } // namespace data

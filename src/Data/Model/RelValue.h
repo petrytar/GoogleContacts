@@ -34,11 +34,11 @@ public:
     static QString getLabelFromUrl(const QString& url);
     static QString getUrlFromLabel(const QString& label);
 
-private:
-    RelValue();
-
     static ERelValue getRelValueFromUrl(const QString& url);
     static ERelValue getRelValueFromLabel(const QString& label);
+
+private:
+    RelValue();
 };
 
 } // namespace data

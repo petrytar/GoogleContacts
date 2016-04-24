@@ -44,17 +44,13 @@ private slots:
     void onContactsLoad();
     void onContactsLoadFailed();
 
-    void on_syncButton_clicked();
-
     void initNewUser();
     void setActiveUser(data::ptr<data::User> user);
 
+    void on_syncButton_clicked();
     void on_editButton_clicked();
-
     void on_entriesTreeWidget_itemSelectionChanged();
-
     void on_newButton_clicked();
-
     void on_deleteButton_clicked();
 
 private:
@@ -65,8 +61,6 @@ private:
         E_COLUMN_NAME_TO_DISPLAY = E_COLUMN__BEGIN,
         E_COLUMN_EMAILS,
         E_COLUMN_PHONE_NUMBERS,
-        /*E_COLUMN_JOB,
-        E_COLUMN_COMPANY,*/
         E_COLUMN__END
     };
 
@@ -74,7 +68,7 @@ private:
     void adjustUi();
 
     bool isAccessTokenEnabled() const;
-    void updateWidgetsData();
+    void fillContactEntriesTreeWidget();
     void updateContactEntryItem(QTreeWidgetItem* item);
 
     void setUserContactSingleValueRows(int column, const QStringList& userContactNames);
