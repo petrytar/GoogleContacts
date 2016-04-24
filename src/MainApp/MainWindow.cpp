@@ -26,6 +26,14 @@ MainWindow::MainWindow(QWidget* parent) :
 {
     ui->setupUi(this);
     adjustUi();
+
+    VERIFY(connect(m_authManager, SIGNAL(newUserInitialiazed(data::ptr<data::User>)), this, SLOT(onNewUserInitialized(data::ptr<data::User>))));
+    VERIFY(connect(m_authManager, SIGNAL(error()), this, SLOT(onAuthFailed())));
+    VERIFY(connect(m_authManager, SIGNAL(accessTokenReceived(QString)), this, SLOT(onAccessTokenReceived(QString))));
+    VERIFY(connect(m_authManager, SIGNAL(invalidRefreshToken()), this, SLOT(onInvalidRefreshToken())));
+    VERIFY(connect(m_googleContacts, SIGNAL(contactsSyncSuccessful()), this, SLOT(onContactsSyncSuccessful())));
+    VERIFY(connect(m_googleContacts, SIGNAL(authorizationError()), this, SLOT(onContactsAuthorizationError())));
+    VERIFY(connect(m_googleContacts, SIGNAL(otherError(QNetworkReply::NetworkError)), this, SLOT(onContactsOtherError(QNetworkReply::NetworkError))));
 }
 
 bool MainWindow::isAccessTokenEnabled() const
@@ -72,17 +80,15 @@ void MainWindow::initNewUser()
     m_authManager->start();
     m_loginDialog = new LoginDialog(m_authManager->generateAuthorizationRequestUrl(), parentWidget());
     VERIFY(connect(m_loginDialog, SIGNAL(loadFailed()), this, SLOT(onLoginLoadFailed())));
-    VERIFY(connect(m_authManager, SIGNAL(newUserInitialiazed(data::ptr<data::User>)), this, SLOT(onNewUserInitialized(data::ptr<data::User>))));
-    VERIFY(connect(m_authManager, SIGNAL(error()), this, SLOT(onAuthFailed())));
+
     m_loginDialog->show();
 }
 
 void MainWindow::setActiveUser(data::ptr<data::User> user)
 {
     m_googleContacts->setActiveUser(user);
-    m_googleContacts->loadContacts();
-    VERIFY(connect(m_googleContacts, SIGNAL(contactsLoad()), this, SLOT(onContactsLoad())));
-    VERIFY(connect(m_googleContacts, SIGNAL(contactsLoadFailed()), this, SLOT(onContactsLoadFailed())));
+    fillContactEntriesTreeWidget();
+    m_googleContacts->syncContacts();
     show();
 }
 
@@ -104,23 +110,41 @@ void MainWindow::onLoginLoadFailed()
     exit(-1);
 }
 
-void MainWindow::onContactsLoad()
-{
-    fillContactEntriesTreeWidget();
-    ui->statusBar->showMessage(QString("Successfully updated on %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")));
-}
-
-void MainWindow::onContactsLoadFailed()
-{
-    fillContactEntriesTreeWidget();
-    ui->statusBar->showMessage(QString("Failed to update on %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")));
-}
-
 void MainWindow::onAuthFailed()
 {
     m_loginDialog->close();
     QMessageBox::critical(this, QString("Error"), QString("Failed authentication!"));
     exit(-1);
+}
+
+void MainWindow::onContactsSyncSuccessful()
+{
+    fillContactEntriesTreeWidget();
+    ui->statusBar->showMessage(QString("Successfully syncronized on %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")));
+}
+
+void MainWindow::onContactsAuthorizationError()
+{
+    ui->statusBar->showMessage(QString("Failed to syncronize on %1 (authorization error)").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")));
+    m_authManager->refreshAccessToken(m_googleContacts->getActiveUser()->getRefreshToken());
+}
+
+void MainWindow::onContactsOtherError(QNetworkReply::NetworkError error)
+{
+    fillContactEntriesTreeWidget();
+    ui->statusBar->showMessage(QString("Failed to syncronize on %1 (error code: %2)").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")).arg(error));
+}
+
+void MainWindow::onAccessTokenReceived(const QString& accessToken)
+{
+    m_googleContacts->getActiveUser()->setAccessToken(accessToken);
+    m_database->save(m_googleContacts->getActiveUser());
+    m_googleContacts->syncContacts();
+}
+
+void MainWindow::onInvalidRefreshToken()
+{
+    ui->statusBar->showMessage("Failed to refresh access token - invalid refresh token");
 }
 
 void MainWindow::fillContactEntriesTreeWidget()
@@ -170,8 +194,8 @@ void MainWindow::setUserContactListValueRows(int column, const QList<QStringList
 
 void MainWindow::on_syncButton_clicked()
 {
-    m_googleContacts->loadContacts();
-    fillContactEntriesTreeWidget();
+    m_googleContacts->syncContacts();
+    //fillContactEntriesTreeWidget();
 }
 
 void MainWindow::on_editButton_clicked()

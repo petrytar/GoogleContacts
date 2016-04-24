@@ -84,6 +84,11 @@ QList<ptr<User>> Database::getUsers()
     return users;
 }
 
+void Database::save(ptr<User> user)
+{
+    qx::dao::save(user);
+}
+
 void Database::saveOrGetByEmail(ptr<User> user)
 {
     qx::QxSqlQuery query;
@@ -95,7 +100,7 @@ void Database::saveOrGetByEmail(ptr<User> user)
         user->setId(users.at(0)->getId());
     }
 
-    qx::dao::save(user);
+    save(user);
 }
 
 void Database::remove(ptr<User> user)

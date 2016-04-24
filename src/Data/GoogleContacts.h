@@ -6,6 +6,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QNetworkReply>
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -37,17 +38,17 @@ public:
     QList<ptr<ContactEntry>>& getContacts() { return m_contactEntries; }
     void addContact(ptr<ContactEntry> contactEntry);
 
-    void loadContacts();
+    void syncContacts();
 
 signals:
-    void contactsLoad();
-    void contactsLoadFailed();
-
-private slots:
-    void onReplyFinished();
+    void contactsSyncSuccessful();
+    void authorizationError();
+    void otherError(QNetworkReply::NetworkError error);
 
 private:
     QString getAccessToken() const;
+
+    void processGetContactsReply(QNetworkReply* reply);
     
     QList<ptr<ContactEntry>> parseContactEntries(const QString& xml);
     void syncContactEntries(QList<ptr<ContactEntry>> newContactEntries);

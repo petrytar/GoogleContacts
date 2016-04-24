@@ -35,9 +35,13 @@ public:
     QString getAccessToken() const { return m_accessToken; }
     QString getRefreshToken() const { return m_refreshToken; }
 
+    void refreshAccessToken(const QString& refreshToken);
+
 signals:
     void error();
     void newUserInitialiazed(data::ptr<data::User> user);
+    void accessTokenReceived(const QString& accessToken);
+    void invalidRefreshToken();
 
 private slots:
     void requestAccessToken(const QString& authCode);
@@ -50,6 +54,9 @@ private:
     ushort getFreeOpenPort() const;
 
     void requestEmail();
+    bool finilizeAndCheckErrorsOnReply(const QString& description, QNetworkReply* reply);
+
+    void processRefreshTokenRequestResult(QNetworkReply* reply);
 
     long m_id;
     QNetworkAccessManager* m_networkAccessManager;

@@ -33,27 +33,25 @@ void GoogleContacts::setActiveUser(ptr<User> user)
     m_contactEntries = m_database->getContactEntries(user);
 }
 
-void GoogleContacts::loadContacts()
+void GoogleContacts::syncContacts()
 {
     QNetworkRequest request(QUrl("https://www.google.com/m8/feeds/contacts/default/full"));
     request.setRawHeader("GData-Version", "3.0");
     request.setRawHeader("Authorization", QString("Bearer %1").arg(getAccessToken()).toUtf8());
 
     QNetworkReply* reply = m_networkAccessManager->get(request);
-    VERIFY(connect(reply, SIGNAL(finished()), this, SLOT(onReplyFinished())));
+    auto onReplyFinished = [this, reply]()
+    {
+        if (finilizeAndCheckErrorsOnReply("loadContacts", reply))
+        {
+            processGetContactsReply(reply);
+        }
+    };
+    VERIFY(connect(reply, &QNetworkReply::finished, onReplyFinished));
 }
 
-void GoogleContacts::onReplyFinished()
+void GoogleContacts::processGetContactsReply(QNetworkReply* reply)
 {
-    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-    reply->deleteLater();
-    if (reply->error() != QNetworkReply::NoError)
-    {
-        qDebug() << "Reply from Contacts API ended with error:" << reply->error();
-        emit contactsLoadFailed();
-        return;
-    }
-
     QString body(reply->readAll());
     QList<ptr<ContactEntry>> newContactEntries = parseContactEntries(body);
     syncContactEntries(newContactEntries);
@@ -182,7 +180,7 @@ void GoogleContacts::sendNextQueuedRequest()
 {
     if (m_queuedRequests.isEmpty())
     {
-        emit contactsLoad();
+        emit contactsSyncSuccessful();
         return;
     }
 
@@ -223,6 +221,15 @@ bool GoogleContacts::finilizeAndCheckErrorsOnReply(const QString& description, Q
     qDebug() << "Error reply contents:";
     QString xml(reply->readAll());
     std::cout << xml.toStdString() << std::endl;
+    if (reply->error() == QNetworkReply::AuthenticationRequiredError)
+    {
+        qDebug() << "Access token is not valid!";
+        emit authorizationError();
+    }
+    else
+    {
+        emit otherError(reply->error());
+    }
     return false;
 }
 
@@ -286,7 +293,6 @@ void GoogleContacts::processDeleteContactEntryReply(ptr<ContactEntry> contactEnt
     m_database->remove(contactEntry);
     m_contactEntries.removeOne(contactEntry);
 }
-
 
 void GoogleContacts::sendUpdateContactEntryRequest(ptr<ContactEntry> contactEntry)
 {

@@ -5,6 +5,8 @@
 
 #include "MainApp/MainApp_global.h"
 
+#include <QNetworkReply>
+
 class QNetworkAccessManager;
 class QTreeWidgetItem;
 
@@ -41,8 +43,12 @@ private slots:
     void onAuthFailed();
     void onLoginLoadFailed();
 
-    void onContactsLoad();
-    void onContactsLoadFailed();
+    void onAccessTokenReceived(const QString& accessToken);
+    void onInvalidRefreshToken();
+
+    void onContactsSyncSuccessful();
+    void onContactsAuthorizationError();
+    void onContactsOtherError(QNetworkReply::NetworkError error);
 
     void initNewUser();
     void setActiveUser(data::ptr<data::User> user);

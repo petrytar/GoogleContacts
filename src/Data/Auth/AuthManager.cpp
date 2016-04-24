@@ -103,4 +103,61 @@ void AuthManager::onEmailRequestFinished()
     emit newUserInitialiazed(user);
 }
 
+bool AuthManager::finilizeAndCheckErrorsOnReply(const QString& description, QNetworkReply* reply)
+{
+    qDebug() << description << "finished with code:" << reply->error();
+    reply->deleteLater();
+    if (reply->error() == QNetworkReply::NoError)
+    {
+        return true;
+    }
+    qDebug() << "Error reply contents:";
+    QByteArray replyData = reply->readAll();
+    QString replyText(replyData);
+    std::cout << replyText.toStdString() << std::endl;
+
+    QJsonParseError parseError;
+    QJsonDocument json = QJsonDocument::fromJson(replyData, &parseError);
+    if (parseError.error == QJsonParseError::NoError && json.object().contains("error"))
+    {
+        QString error = json.object()["error"].toString();
+        if (error == "invalid_grant")
+        {
+            emit invalidRefreshToken();
+            return false;
+        }
+    }
+
+    emit error();
+    return false;
+}
+
+void AuthManager::refreshAccessToken(const QString& refreshToken)
+{
+    QUrlQuery postData;
+    postData.addQueryItem("client_id", AuthSettings::getClientId());
+    postData.addQueryItem("client_secret", AuthSettings::getClientSecret());
+    postData.addQueryItem("refresh_token", refreshToken);
+    postData.addQueryItem("grant_type", "refresh_token");
+
+    QNetworkRequest request(QUrl(AuthSettings::getTokenUri()));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    QNetworkReply* reply = m_networkAccessManager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
+    auto onReplyFinished = [this, reply]()
+    {
+        if (finilizeAndCheckErrorsOnReply("refreshAccessToken", reply))
+        {
+            processRefreshTokenRequestResult(reply);
+        }
+    };
+    VERIFY(connect(reply, &QNetworkReply::finished, onReplyFinished));
+}
+
+void AuthManager::processRefreshTokenRequestResult(QNetworkReply* reply)
+{
+    QJsonDocument json = QJsonDocument::fromJson(reply->readAll());
+    QString accessToken = json.object()["access_token"].toString();
+    emit accessTokenReceived(accessToken);
+}
+
 } // namespace data

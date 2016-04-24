@@ -24,6 +24,7 @@ public:
     void open();
 
     QList<ptr<User>> getUsers();
+    void save(ptr<User> user);
     void saveOrGetByEmail(ptr<User> user);
     void remove(ptr<User> user);
 
