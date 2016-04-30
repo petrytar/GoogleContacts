@@ -32,9 +32,9 @@ public:
 
     void setUser(ptr<User> user) { m_user = user; }
 
-    QString getGoogleContactId() const { return m_googleContactId; }
-    QString getGoogleContactsShortId() const;
-    void setGoogleContactId(const QString& googleContactId) { m_googleContactId = googleContactId; }
+    QString getGoogleId() const { return m_googleId; }
+    QString getGoogleShortId() const;
+    void setGoogleId(const QString& googleContactId) { m_googleId = googleContactId; }
 
     QDateTime getUpdatedTime() const { return m_updatedTime; }
     void setUpdatedTime(const QDateTime& updatedTime) { m_updatedTime = updatedTime; }
@@ -75,7 +75,7 @@ public:
 private:
     long m_id;
     ptr<User> m_user;
-    QString m_googleContactId;
+    QString m_googleId;
     QDateTime m_updatedTime;
     QString m_name;
     QString m_nickname;

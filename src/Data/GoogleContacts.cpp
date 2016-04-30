@@ -233,7 +233,7 @@ void GoogleContacts::syncContactEntries(QList<ptr<ContactEntry>> newContactEntri
     QList<ptr<ContactEntry>> createdContactEntries;
     for (ptr<ContactEntry> contactEntry : m_contactEntries)
     {
-        QString contactId = contactEntry->getGoogleContactId();
+        QString contactId = contactEntry->getGoogleId();
         if (!contactId.isEmpty())
         {
             if (contactEntry->isDeleted())
@@ -259,12 +259,12 @@ void GoogleContacts::syncContactEntries(QList<ptr<ContactEntry>> newContactEntri
     QMap<QString, ptr<ContactEntry>> newContactEntriesMap;
     for (ptr<ContactEntry> contactEntry : newContactEntries)
     {
-        newContactEntriesMap.insert(contactEntry->getGoogleContactId(), contactEntry);
+        newContactEntriesMap.insert(contactEntry->getGoogleId(), contactEntry);
     }
 
     for (ptr<ContactEntry> newContactEntry : newContactEntries)
     {
-        ptr<ContactEntry> currentContactEntry = currentContactEntries.value(newContactEntry->getGoogleContactId());
+        ptr<ContactEntry> currentContactEntry = currentContactEntries.value(newContactEntry->getGoogleId());
         if (!currentContactEntry)
         {
             qDebug() << "new contact found";
@@ -289,7 +289,7 @@ void GoogleContacts::syncContactEntries(QList<ptr<ContactEntry>> newContactEntri
 
     for (ptr<ContactEntry> currentContactEntry : currentContactEntries)
     {
-        if (!newContactEntriesMap.contains(currentContactEntry->getGoogleContactId()))
+        if (!newContactEntriesMap.contains(currentContactEntry->getGoogleId()))
         {
             qDebug() << "deleted contact found";
             m_database->remove(currentContactEntry);
@@ -414,7 +414,7 @@ void GoogleContacts::sendDeleteContactEntryRequest(ptr<ContactEntry> contactEntr
 {
     qDebug() << "Sending Delete Contact Entry request";
 
-    QNetworkRequest request(QUrl(QString("https://www.google.com/m8/feeds/contacts/default/full/") + contactEntry->getGoogleContactsShortId()));
+    QNetworkRequest request(QUrl(QString("https://www.google.com/m8/feeds/contacts/default/full/") + contactEntry->getGoogleShortId()));
     request.setRawHeader("GData-Version", "3.0");
     request.setRawHeader("Authorization", QString("Bearer %1").arg(getAccessToken()).toUtf8());
     request.setRawHeader("If-Match", "*");
@@ -441,7 +441,7 @@ void GoogleContacts::sendUpdateContactEntryRequest(ptr<ContactEntry> contactEntr
 {
     qDebug() << "Sending Update Contact Entry request";
 
-    QNetworkRequest request(QUrl(QString("https://www.google.com/m8/feeds/contacts/default/full/") + contactEntry->getGoogleContactsShortId()));
+    QNetworkRequest request(QUrl(QString("https://www.google.com/m8/feeds/contacts/default/full/") + contactEntry->getGoogleShortId()));
     request.setRawHeader("GData-Version", "3.0");
     request.setRawHeader("Authorization", QString("Bearer %1").arg(getAccessToken()).toUtf8());
     request.setRawHeader("Content-Type", "application/atom+xml");

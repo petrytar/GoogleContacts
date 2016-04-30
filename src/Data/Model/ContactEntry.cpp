@@ -22,7 +22,7 @@ template <> void register_class(QxClass<data::ContactEntry>& t)
     t.setName("ContactEntry");
     t.id(&data::ContactEntry::m_id, "contactEntryId");
     t.relationManyToOne(&data::ContactEntry::m_user, "userId");
-    t.data(&data::ContactEntry::m_googleContactId, "googleContactId");
+    t.data(&data::ContactEntry::m_googleId, "googleId");
     t.data(&data::ContactEntry::m_updatedTime, "updatedTime");
     t.data(&data::ContactEntry::m_name, "name");
     t.data(&data::ContactEntry::m_nickname, "nickname");
@@ -50,7 +50,7 @@ ContactEntry::~ContactEntry()
 
 void ContactEntry::copyFrom(const ContactEntry& other)
 {
-    m_googleContactId = other.m_googleContactId;
+    m_googleId = other.m_googleId;
     m_updatedTime = other.m_updatedTime;
     m_name = other.m_name;
     m_nickname = other.m_nickname;
@@ -135,7 +135,7 @@ void ContactEntry::fromXml(ptr<ContactEntry> contactEntry, const QDomElement& co
     QDomNodeList googleIdDomNodeList = contactEntryElement.elementsByTagName("id");
     if (!googleIdDomNodeList.isEmpty())
     {
-        contactEntry->setGoogleContactId(googleIdDomNodeList.at(0).toElement().text());
+        contactEntry->setGoogleId(googleIdDomNodeList.at(0).toElement().text());
     }
 
     QDomNodeList updatedTimeDomNodeList = contactEntryElement.elementsByTagName("updated");
@@ -288,14 +288,14 @@ QString ContactEntry::toXml()
     return document.toString(2);
 }
 
-QString ContactEntry::getGoogleContactsShortId() const
+QString ContactEntry::getGoogleShortId() const
 {
-    int indexOfSlash = m_googleContactId.lastIndexOf("/");
+    int indexOfSlash = m_googleId.lastIndexOf("/");
     if (indexOfSlash < 0)
     {
         return QString();
     }
-    return m_googleContactId.mid(indexOfSlash + 1);
+    return m_googleId.mid(indexOfSlash + 1);
 }
 
 } // namespace data
