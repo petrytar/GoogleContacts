@@ -4,6 +4,7 @@
 #include "Data/Model/User.h"
 #include "Data/Model/ContactEntry.h"
 #include "Data/Model/ContactProperty.h"
+#include "Data/Model/ContactGroup.h"
 
 #include <QxDao/IxPersistable.h>
 #include <QxDao/QxDao_Impl.h>
@@ -41,6 +42,7 @@ void Database::open()
         qx::dao::create_table<User>();
         qx::dao::create_table<ContactEntry>();
         qx::dao::create_table<ContactProperty>();
+        qx::dao::create_table<ContactGroup>();
     }
 
     /*QSqlError daoError = qx::dao::delete_all<ContactEntry>();
@@ -111,6 +113,31 @@ void Database::remove(ptr<User> user)
         remove(contactEntry);
     }
     qx::dao::delete_by_id(user);
+}
+
+QList<ptr<ContactGroup>> Database::getContactGroups(ptr<User> user)
+{
+    QList<ptr<ContactGroup>> contactGroups;
+    qx::QxSqlQuery query;
+    query.where("ContactGroup.userId").isEqualTo(static_cast<int>(user->getId()));
+    qx::dao::fetch_by_query_with_all_relation(query, contactGroups);
+    return contactGroups;
+}
+
+void Database::save(ptr<ContactGroup> contactGroup)
+{
+    qx::dao::save_with_relation_recursive(contactGroup);
+}
+
+void Database::update(ptr<ContactGroup> existingContactGroup, ptr<ContactGroup> updatedContactGroup)
+{
+    existingContactGroup->copyFrom(*updatedContactGroup.get());
+    save(existingContactGroup);
+}
+
+void Database::remove(ptr<ContactGroup> contactGroup)
+{
+    qx::dao::delete_by_id(contactGroup);
 }
 
 QList<ptr<ContactEntry>> Database::getContactEntries(ptr<User> user)

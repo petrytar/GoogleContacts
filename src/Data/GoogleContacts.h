@@ -2,7 +2,6 @@
 #define DATA_GOOGLECONTACTS_H
 
 #include "Data/Data_global.h"
-#include "Data/Model/ContactEntry.h"
 
 #include <QObject>
 #include <QString>
@@ -16,6 +15,8 @@ namespace data
 
 class Database;
 class User;
+class ContactEntry;
+class ContactGroup;
 
 /**
  * \brief The GoogleContacts class.
@@ -35,12 +36,15 @@ public:
     void setActiveUser(ptr<User> user);
     ptr<User> getActiveUser() const { return m_activeUser; }
 
+    QList<ptr<ContactGroup>>& getGroups() { return m_contactGroups; }
+
     QList<ptr<ContactEntry>>& getContacts() { return m_contactEntries; }
     void addContact(ptr<ContactEntry> contactEntry);
 
-    void syncContacts();
+    void syncGroupsAndContacts();
 
 signals:
+    void groupsSyncSuccessful();
     void contactsSyncSuccessful();
     void authorizationError();
     void otherError(QNetworkReply::NetworkError error);
@@ -48,8 +52,15 @@ signals:
 private:
     QString getAccessToken() const;
 
+    void syncContacts();
+    void syncGroups();
+
+    void processGetGroupsReply(QNetworkReply* reply);
     void processGetContactsReply(QNetworkReply* reply);
     
+    QList<ptr<ContactGroup>> parseContactGroups(const QString& xml);
+    void syncContactGroups(QList<ptr<ContactGroup>> newContactGroups);
+
     QList<ptr<ContactEntry>> parseContactEntries(const QString& xml);
     void syncContactEntries(QList<ptr<ContactEntry>> newContactEntries);
 
@@ -82,6 +93,7 @@ private:
     };
 
     QNetworkAccessManager* m_networkAccessManager;
+    QList<ptr<ContactGroup>> m_contactGroups;
     QList<ptr<ContactEntry>> m_contactEntries;
     Database* m_database;
     ptr<User> m_activeUser;

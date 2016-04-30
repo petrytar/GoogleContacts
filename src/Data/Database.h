@@ -10,6 +10,7 @@ namespace data
 
 class User;
 class ContactEntry;
+class ContactGroup;
 
 class Database : public QObject
 {
@@ -27,6 +28,11 @@ public:
     void save(ptr<User> user);
     void saveOrGetByEmail(ptr<User> user);
     void remove(ptr<User> user);
+
+    QList<ptr<ContactGroup>> getContactGroups(ptr<User> user);
+    void save(ptr<ContactGroup> contactGroup);
+    void update(ptr<ContactGroup> existingContactGroup, ptr<ContactGroup> updatedContactGroup);
+    void remove(ptr<ContactGroup> contactGroup);
 
     QList<ptr<ContactEntry>> getContactEntries(ptr<User> user);
     void save(ptr<ContactEntry> contactEntry);

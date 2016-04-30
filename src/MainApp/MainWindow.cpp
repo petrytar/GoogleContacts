@@ -6,6 +6,7 @@
 #include "Data/GoogleContacts.h"
 #include "Data/debugAsserts.h"
 #include "Data/Model/ContactEntry.h"
+#include "Data/Model/ContactGroup.h"
 #include "Data/Model/User.h"
 #include "MainApp/ComboBoxDelegate.h"
 #include "MainApp/LoginDialog.h"
@@ -15,6 +16,7 @@
 #include <QDesktopWidget>
 #include <QMessageBox>
 #include <QNetworkAccessManager>
+#include <QSplitter>
 
 MainWindow::MainWindow(QWidget* parent) :
     BaseClass(parent),
@@ -31,6 +33,7 @@ MainWindow::MainWindow(QWidget* parent) :
     VERIFY(connect(m_authManager, SIGNAL(error()), this, SLOT(onAuthFailed())));
     VERIFY(connect(m_authManager, SIGNAL(accessTokenReceived(QString)), this, SLOT(onAccessTokenReceived(QString))));
     VERIFY(connect(m_authManager, SIGNAL(invalidRefreshToken()), this, SLOT(onInvalidRefreshToken())));
+    VERIFY(connect(m_googleContacts, SIGNAL(groupsSyncSuccessful()), this, SLOT(onGroupsSyncSuccessful())));
     VERIFY(connect(m_googleContacts, SIGNAL(contactsSyncSuccessful()), this, SLOT(onContactsSyncSuccessful())));
     VERIFY(connect(m_googleContacts, SIGNAL(authorizationError()), this, SLOT(onContactsAuthorizationError())));
     VERIFY(connect(m_googleContacts, SIGNAL(otherError(QNetworkReply::NetworkError)), this, SLOT(onContactsOtherError(QNetworkReply::NetworkError))));
@@ -38,7 +41,15 @@ MainWindow::MainWindow(QWidget* parent) :
 
 void MainWindow::adjustUi()
 {
+    QSplitter* splitter = new QSplitter(this);
+    splitter->addWidget(ui->groupsWidget);
+    splitter->addWidget(ui->entriesWidget);
+    splitter->setSizes(QList<int>() << 100 << 300);
+    setCentralWidget(splitter);
+
     setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), qApp->desktop()->availableGeometry()));
+
+    m_groupRadioButtons.insert(ui->allGroupsRadioButton, data::ptr<data::ContactGroup>());
 
     ui->entriesTreeWidget->setHeaderLabels(QStringList() << "Name" << "Email" << "Phone");
     ui->entriesTreeWidget->setColumnWidth(E_COLUMN_NAME_TO_DISPLAY, 200);
@@ -82,8 +93,9 @@ void MainWindow::initNewUser()
 void MainWindow::setActiveUser(data::ptr<data::User> user)
 {
     m_googleContacts->setActiveUser(user);
+    fillContactGroupsTreeWidget();
     fillContactEntriesTreeWidget();
-    m_googleContacts->syncContacts();
+    m_googleContacts->syncGroupsAndContacts();
     show();
 }
 
@@ -112,8 +124,16 @@ void MainWindow::onAuthFailed()
     exit(-1);
 }
 
+void MainWindow::onGroupsSyncSuccessful()
+{
+    fillContactGroupsTreeWidget();
+    //fillContactEntriesTreeWidget();
+    //ui->statusBar->showMessage(QString("Successfully syncronized on %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")));
+}
+
 void MainWindow::onContactsSyncSuccessful()
 {
+    //fillContactGroupsTreeWidget();
     fillContactEntriesTreeWidget();
     ui->statusBar->showMessage(QString("Successfully syncronized on %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")));
 }
@@ -134,12 +154,75 @@ void MainWindow::onAccessTokenReceived(const QString& accessToken)
 {
     m_googleContacts->getActiveUser()->setAccessToken(accessToken);
     m_database->save(m_googleContacts->getActiveUser());
-    m_googleContacts->syncContacts();
+    m_googleContacts->syncGroupsAndContacts();
 }
 
 void MainWindow::onInvalidRefreshToken()
 {
     ui->statusBar->showMessage("Failed to refresh access token - invalid refresh token");
+}
+
+void MainWindow::fillContactGroupsTreeWidget()
+{
+    QList<data::ptr<data::ContactGroup>> contactGroups = m_googleContacts->getGroups();
+
+    // Remove unnecessary checkboxes
+
+    for (QRadioButton* radioButton : ui->groupsGroupBox->findChildren<QRadioButton*>())
+    {
+        if (radioButton == ui->allGroupsRadioButton)
+        {
+            continue;
+        }
+
+        data::ptr<data::ContactGroup> contactGroup = m_groupRadioButtons.value(radioButton);
+        if (contactGroups.contains(contactGroup))
+        {
+            continue;
+        }
+
+        ui->groupsGroupBoxLayout->removeWidget(radioButton);
+        radioButton->deleteLater();
+        m_groupRadioButtons.remove(radioButton);
+    }
+
+    // Add missing checkboxes
+
+    QList<data::ptr<data::ContactGroup>> displayedContactGroups = m_groupRadioButtons.values();
+
+    for (auto contactGroup : contactGroups)
+    {
+        if (contactGroup->isSystemGroup() || displayedContactGroups.contains(contactGroup))
+        {
+            continue;
+        }
+
+        QRadioButton* radioButton = new QRadioButton(ui->groupsGroupBox);
+        radioButton->setText(contactGroup->getTitle());
+        ui->groupsGroupBoxLayout->insertWidget(ui->groupsGroupBoxLayout->count() - 1, radioButton);
+        m_groupRadioButtons.insert(radioButton, contactGroup);
+    }
+
+    // Update texts for existing ones and ensure at least one radio button is checked
+
+    bool hasChecked = false;
+    for (auto it = m_groupRadioButtons.begin(); it != m_groupRadioButtons.end(); ++it)
+    {
+        if (it.key()->isChecked())
+        {
+            hasChecked = true;
+        }
+
+        if (it.key() != ui->allGroupsRadioButton)
+        {
+            it.key()->setText(it.value()->getTitle());
+        }
+    }
+
+    if (!hasChecked)
+    {
+        ui->allGroupsRadioButton->setChecked(true);
+    }
 }
 
 void MainWindow::fillContactEntriesTreeWidget()
@@ -208,8 +291,7 @@ void MainWindow::setUserContactListValueRows(int column, const QList<QStringList
 
 void MainWindow::on_syncButton_clicked()
 {
-    m_googleContacts->syncContacts();
-    //fillContactEntriesTreeWidget();
+    m_googleContacts->syncGroupsAndContacts();
 }
 
 void MainWindow::on_editButton_clicked()

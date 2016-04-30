@@ -9,6 +9,7 @@
 
 class QNetworkAccessManager;
 class QTreeWidgetItem;
+class QRadioButton;
 
 namespace data
 {
@@ -16,6 +17,7 @@ class AuthManager;
 class GoogleContacts;
 class Database;
 class User;
+class ContactGroup;
 }
 
 class LoginDialog;
@@ -46,6 +48,7 @@ private slots:
     void onAccessTokenReceived(const QString& accessToken);
     void onInvalidRefreshToken();
 
+    void onGroupsSyncSuccessful();
     void onContactsSyncSuccessful();
     void onContactsAuthorizationError();
     void onContactsOtherError(QNetworkReply::NetworkError error);
@@ -73,6 +76,7 @@ private:
     /// Customize the appearance of dialogue
     void adjustUi();
 
+    void fillContactGroupsTreeWidget();
     void fillContactEntriesTreeWidget();
     void updateContactEntryItem(QTreeWidgetItem* item);
 
@@ -86,6 +90,8 @@ private:
     data::AuthManager* m_authManager;
     data::Database* m_database;
     data::GoogleContacts* m_googleContacts;
+
+    QMap<QRadioButton*, data::ptr<data::ContactGroup>> m_groupRadioButtons;
 };
 
 #endif // MAINAPP_MAINWINDOW_H
