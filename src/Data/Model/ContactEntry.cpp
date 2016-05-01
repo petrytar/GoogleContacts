@@ -63,6 +63,8 @@ void ContactEntry::copyFrom(const ContactEntry& other)
 
     m_properties = other.m_properties;
 
+    m_contactGroups = other.m_contactGroups;
+
     //m_deleted = other.m_deleted;  //deleted must state deleted!
 }
 

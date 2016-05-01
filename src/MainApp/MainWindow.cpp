@@ -260,6 +260,7 @@ void MainWindow::fillContactEntriesTreeWidget()
         else
         {
             displayedContactEntries.insert(contactEntry);
+            updateContactEntryItem(item);
             newAllTreeWidgetItems.push_back(item);
         }
     }
@@ -270,6 +271,7 @@ void MainWindow::fillContactEntriesTreeWidget()
         {
             QTreeWidgetItem* item = new QTreeWidgetItem();
             item->setData(0, Qt::UserRole, QVariant::fromValue(contactEntry));
+            updateContactEntryItem(item);
             newAllTreeWidgetItems.push_back(item);
         }
     }
@@ -289,20 +291,44 @@ void MainWindow::showFilteredContactEntryItems()
         {
             ui->entriesTreeWidget->takeTopLevelItem(i);
         }
-        else
-        {
-            updateContactEntryItem(item);
-        }
     }
 
-    for (QTreeWidgetItem* item : contactEntryTreeItems)
     {
-        if (ui->entriesTreeWidget->indexOfTopLevelItem(item) < 0)
+        int i = 0;
+        while (i < ui->entriesTreeWidget->topLevelItemCount() && i < contactEntryTreeItems.size())
         {
-            ui->entriesTreeWidget->addTopLevelItem(item);
-            updateContactEntryItem(item);
+            QTreeWidgetItem* currentItem = ui->entriesTreeWidget->topLevelItem(i);
+            if (currentItem == contactEntryTreeItems[i])
+            {
+                ++i;
+                continue;
+            }
+
+            ui->entriesTreeWidget->insertTopLevelItem(i, contactEntryTreeItems[i]);
+            ++i;
+        }
+
+        while (i < contactEntryTreeItems.size())
+        {
+            ui->entriesTreeWidget->addTopLevelItem(contactEntryTreeItems[i]);
+            ++i;
         }
     }
+}
+
+bool MainWindow::itemMatchesFindFilter(QTreeWidgetItem* item)
+{
+    QRegExp regExp(ui->findLineEdit->text().trimmed());
+    regExp.setCaseSensitivity(Qt::CaseInsensitive);
+    regExp.setPatternSyntax(QRegExp::Wildcard);
+    for (int i = 0; i < item->columnCount(); ++i)
+    {
+        if (item->text(i).contains(regExp))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 QList<QTreeWidgetItem*> MainWindow::filterContactEntryItems(QList<QTreeWidgetItem*> contactEntryTreeItems)
@@ -319,10 +345,17 @@ QList<QTreeWidgetItem*> MainWindow::filterContactEntryItems(QList<QTreeWidgetIte
         }
     }
 
+    QString findText = ui->findLineEdit->text().trimmed();
+
     for (QTreeWidgetItem* item : contactEntryTreeItems)
     {
         data::ptr<data::ContactEntry> contactEntry = item->data(0, Qt::UserRole).value<data::ptr<data::ContactEntry>>();
         if (currentContactGroup && !contactEntry->getContactGroups().contains(currentContactGroup))
+        {
+            continue;
+        }
+
+        if (!findText.isEmpty() && !itemMatchesFindFilter(item))
         {
             continue;
         }
@@ -410,4 +443,9 @@ void MainWindow::on_deleteButton_clicked()
         m_database->save(contactEntry);
         fillContactEntriesTreeWidget();
     }
+}
+
+void MainWindow::on_findLineEdit_textChanged()
+{
+    showFilteredContactEntryItems();
 }

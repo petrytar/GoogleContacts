@@ -64,6 +64,8 @@ private slots:
     void on_newButton_clicked();
     void on_deleteButton_clicked();
 
+    void on_findLineEdit_textChanged();
+
 private:
     // helping enum for tableWidget columns
     enum EColumn
@@ -83,6 +85,8 @@ private:
     void updateContactEntryItem(QTreeWidgetItem* item);
     void showFilteredContactEntryItems();
     QList<QTreeWidgetItem*> filterContactEntryItems(QList<QTreeWidgetItem*> contactEntryTreeItems);
+
+    bool itemMatchesFindFilter(QTreeWidgetItem* item);
 
     void setUserContactSingleValueRows(int column, const QStringList& userContactNames);
     void setUserContactListValueRows(int column, const QList<QStringList>& phoneNumbersList);
