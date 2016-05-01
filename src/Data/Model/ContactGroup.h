@@ -23,6 +23,7 @@ public:
     void setUser(ptr<User> user) { m_user = user; }
 
     QString getGoogleId() const { return m_googleId; }
+    QString getGoogleShortId() const;
     void setGoogleId(const QString& googleId) { m_googleId = googleId; }
 
     QDateTime getUpdatedTime() const { return m_updatedTime; }

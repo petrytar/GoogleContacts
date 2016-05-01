@@ -17,7 +17,7 @@ namespace qx {
 template <> void register_class(QxClass<data::ContactGroup>& t)
 {
     t.setName("ContactGroup");
-    t.id(&data::ContactGroup::m_id, "contactEntryId");
+    t.id(&data::ContactGroup::m_id, "contactGroupId");
     t.relationManyToOne(&data::ContactGroup::m_user, "userId");
     t.data(&data::ContactGroup::m_googleId, "googleId");
     t.data(&data::ContactGroup::m_updatedTime, "updatedTime");
@@ -48,6 +48,16 @@ void ContactGroup::copyFrom(const ContactGroup& other)
     m_isSystemGroup = other.m_isSystemGroup;
 
     //m_deleted = other.m_deleted;  //deleted must state deleted!
+}
+
+QString ContactGroup::getGoogleShortId() const
+{
+    int indexOfSlash = m_googleId.lastIndexOf("/");
+    if (indexOfSlash < 0)
+    {
+        return QString();
+    }
+    return m_googleId.mid(indexOfSlash + 1);
 }
 
 void ContactGroup::fromXml(ptr<ContactGroup> contactGroup, const QDomElement& contactGroupElement)

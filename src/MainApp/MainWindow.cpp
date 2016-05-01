@@ -192,7 +192,7 @@ void MainWindow::fillContactGroupsTreeWidget()
 
     for (auto contactGroup : contactGroups)
     {
-        if (contactGroup->isSystemGroup() || displayedContactGroups.contains(contactGroup))
+        if (/*contactGroup->isSystemGroup() || */displayedContactGroups.contains(contactGroup))
         {
             continue;
         }
@@ -298,7 +298,7 @@ void MainWindow::on_editButton_clicked()
 {
     QTreeWidgetItem* selectedItem = ui->entriesTreeWidget->selectedItems().at(0);
     data::ptr<data::ContactEntry> contactEntry = selectedItem->data(0, Qt::UserRole).value<data::ptr<data::ContactEntry>>();
-    EditContactEntryDialog* editContactEntryDialog = new EditContactEntryDialog(contactEntry, this);
+    EditContactEntryDialog* editContactEntryDialog = new EditContactEntryDialog(contactEntry, m_googleContacts->getGroups(), this);
     auto onAccepted = [this, selectedItem, contactEntry]()
     {
         m_database->update(contactEntry);
@@ -318,7 +318,7 @@ void MainWindow::on_entriesTreeWidget_itemSelectionChanged()
 void MainWindow::on_newButton_clicked()
 {
     data::ptr<data::ContactEntry> newContactEntry(new data::ContactEntry());
-    EditContactEntryDialog* editContactEntryDialog = new EditContactEntryDialog(newContactEntry, this);
+    EditContactEntryDialog* editContactEntryDialog = new EditContactEntryDialog(newContactEntry, m_googleContacts->getGroups(), this);
     auto onAccepted = [this, newContactEntry]()
     {
         m_googleContacts->addContact(newContactEntry);

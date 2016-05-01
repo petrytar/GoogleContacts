@@ -52,6 +52,8 @@ signals:
 private:
     QString getAccessToken() const;
 
+    void remediateGroupsAndContacts();
+
     void syncContacts();
     void syncGroups();
 

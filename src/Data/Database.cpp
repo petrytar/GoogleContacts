@@ -119,7 +119,7 @@ QList<ptr<ContactGroup>> Database::getContactGroups(ptr<User> user)
 {
     QList<ptr<ContactGroup>> contactGroups;
     qx::QxSqlQuery query;
-    query.where("ContactGroup.userId").isEqualTo(static_cast<int>(user->getId()));
+    query.where("ContactGroup.userId").isEqualTo(static_cast<long long>(user->getId()));
     qx::dao::fetch_by_query_with_all_relation(query, contactGroups);
     return contactGroups;
 }
@@ -144,7 +144,7 @@ QList<ptr<ContactEntry>> Database::getContactEntries(ptr<User> user)
 {
     QList<ptr<ContactEntry>> contactEntries;
     qx::QxSqlQuery query;
-    query.where("ContactEntry.userId").isEqualTo(static_cast<int>(user->getId()));
+    query.where("ContactEntry.userId").isEqualTo(static_cast<long long>(user->getId()));
     qx::dao::fetch_by_query_with_all_relation(query, contactEntries);
     return contactEntries;
 }
@@ -158,7 +158,7 @@ void Database::update(ptr<ContactEntry> existingContactEntry, ptr<ContactEntry> 
 {
     existingContactEntry->copyFrom(*updatedContactEntry.get());
     qx::QxSqlQuery query;
-    query.where("ContactProperty.contactEntryId").isEqualTo(static_cast<int>(existingContactEntry->getId()));
+    query.where("ContactProperty.contactEntryId").isEqualTo(static_cast<long long>(existingContactEntry->getId()));
     qx::dao::delete_by_query<ContactProperty>(query);
     save(existingContactEntry);
 }
@@ -171,8 +171,11 @@ void Database::update(ptr<ContactEntry> contactEntry)
 void Database::remove(ptr<ContactEntry> contactEntry)
 {
     qx::QxSqlQuery query;
-    query.where("ContactProperty.contactEntryId").isEqualTo(static_cast<int>(contactEntry->getId()));
+    query.where("ContactProperty.contactEntryId").isEqualTo(static_cast<long long>(contactEntry->getId()));
     qx::dao::delete_by_query<ContactProperty>(query);
+    qx::QxSqlQuery query2("DELETE FROM ContactGroup_ContactEntry WHERE ContactGroup_ContactEntry.entry_id == :p1");
+    query2.bind(":p1", static_cast<long long>(contactEntry->getId()));
+    qx::dao::call_query(query2);
     qx::dao::delete_by_id(contactEntry);
 }
 

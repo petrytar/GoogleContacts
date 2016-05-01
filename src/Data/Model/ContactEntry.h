@@ -11,7 +11,9 @@ namespace data
 
 class ContactProperty;
 class User;
+class ContactGroup;
 typedef ptr<ContactProperty> ContactPropertyPtr;
+typedef ptr<ContactGroup> ContactGroupPtr;
 
 /**
  * \brief The ContactEntry class.
@@ -62,6 +64,12 @@ public:
     QList<ContactPropertyPtr> getPhoneNumbers() const;
     void addPhoneNumber(ContactPropertyPtr phoneNumber) { m_properties.push_back(phoneNumber); }
 
+    const QList<ContactGroupPtr>& getContactGroups() const { return m_contactGroups; }
+    QList<ContactGroupPtr>& getContactGroups() { return m_contactGroups; }
+    void addContactGroup(ContactGroupPtr contactGroup) { m_contactGroups.push_back(contactGroup); }
+    bool removeContactGroup(ContactGroupPtr contactGroup);
+    void setContactGroups(QList<ContactGroupPtr> groups) { m_contactGroups = groups; }
+
     QString getVisibleName() const;
     QString getPrimaryEmail() const;
     QString getPrimaryPhoneNumber() const;
@@ -69,7 +77,7 @@ public:
     bool isDeleted() const { return m_deleted; }
     void setDeleted(bool deleted) { m_deleted = deleted; }
 
-    static void fromXml(ptr<ContactEntry> contactEntry, const QDomElement& contactEntryElement);
+    static void fromXml(ptr<ContactEntry> contactEntry, QList<ContactGroupPtr> contactGroups, const QDomElement& contactEntryElement);
     QString toXml();
 
 private:
@@ -84,6 +92,8 @@ private:
     QString m_orgTitle;
 
     QList<ContactPropertyPtr> m_properties;
+
+    QList<ContactGroupPtr> m_contactGroups;
 
     bool m_deleted;
 };

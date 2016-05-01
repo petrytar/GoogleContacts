@@ -34,6 +34,38 @@ void GoogleContacts::setActiveUser(ptr<User> user)
     m_activeUser = user;
     m_contactGroups = m_database->getContactGroups(user);
     m_contactEntries = m_database->getContactEntries(user);
+    remediateGroupsAndContacts();
+
+    /*for (auto group : m_contactGroups)
+    {
+        qDebug() << "Group" << group.get();
+    }
+
+    for (auto entry : m_contactEntries)
+    {
+        qDebug() << "Entry" << entry.get();
+        for (auto group : entry->getContactGroups())
+        {
+            qDebug() << "Entry Group" << group.get();
+        }
+    }*/
+}
+
+void GoogleContacts::remediateGroupsAndContacts()
+{
+    QMap<QString, ptr<ContactGroup>> groupsById;
+    for (auto group : m_contactGroups)
+    {
+        groupsById.insert(group->getGoogleId(), group);
+    }
+
+    for (auto entry : m_contactEntries)
+    {
+        for (int i = 0; i < entry->getContactGroups().size(); ++i)
+        {
+            entry->getContactGroups()[i] = groupsById.value(entry->getContactGroups()[i]->getGoogleId());
+        }
+    }
 }
 
 void GoogleContacts::syncGroupsAndContacts()
@@ -138,6 +170,15 @@ void GoogleContacts::syncContactGroups(QList<ptr<ContactGroup>> newContactGroups
         {
             qDebug() << "deleted contact found";
             m_database->remove(currentContactGroup);
+
+            // all references to this group should be removed from entries as well
+            for (auto contactEntry : m_contactEntries)
+            {
+                if (contactEntry->removeContactGroup(currentContactGroup))
+                {
+                    m_database->save(contactEntry);
+                }
+            }
         }
     }
 
@@ -216,7 +257,7 @@ QList<ptr<ContactEntry>> GoogleContacts::parseContactEntries(const QString& xml)
     {
         QDomElement entryElement = entryList.at(i).toElement();
         ptr<ContactEntry> contactEntry(new ContactEntry());
-        ContactEntry::fromXml(contactEntry, entryElement);
+        ContactEntry::fromXml(contactEntry, m_contactGroups, entryElement);
         contactEntry->setUser(m_activeUser);
         contactEntries.push_back(contactEntry);
     }

@@ -3,13 +3,17 @@
 
 #include "Data/Model/ContactEntry.h"
 #include "Data/Model/ContactProperty.h"
+#include "Data/Model/ContactGroup.h"
 #include "Data/Model/RelValue.h"
 #include "MainApp/ContactPropertyComboBoxDelegate.h"
 
-EditContactEntryDialog::EditContactEntryDialog(data::ptr<data::ContactEntry> contactEntry, QWidget* parent) :
+#include <QCheckBox>
+
+EditContactEntryDialog::EditContactEntryDialog(data::ptr<data::ContactEntry> contactEntry, QList<data::ptr<data::ContactGroup>> contactGroups, QWidget* parent) :
     QDialog(parent),
     ui(new Ui::EditContactEntryDialog),
-    m_contactEntry(contactEntry)
+    m_contactEntry(contactEntry),
+    m_contactGroups(contactGroups)
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose);
@@ -22,6 +26,19 @@ EditContactEntryDialog::EditContactEntryDialog(data::ptr<data::ContactEntry> con
     ui->fileAsEdit->setText(contactEntry->getFileAs());
     ui->companyEdit->setText(contactEntry->getOrgName());
     ui->jobTitleEdit->setText(contactEntry->getOrgTitle());
+
+    for (auto contactGroup : contactGroups)
+    {
+        /*if (contactGroup->isSystemGroup())
+        {
+            continue;
+        }*/
+        QCheckBox* checkBox = new QCheckBox(ui->groupsGroupBox);
+        checkBox->setText(contactGroup->getTitle());
+        ui->groupsGroupBoxLayout->insertWidget(ui->groupsGroupBoxLayout->count() - 1, checkBox);
+        checkBox->setChecked(contactEntry->getContactGroups().contains(contactGroup));
+        m_checkBoxesToContactGroups.insert(checkBox, contactGroup);
+    }
 
     initPropertiesTreeWidget();
 }
@@ -87,6 +104,25 @@ void EditContactEntryDialog::onSaveButtonClicked()
         }
     }
     m_contactEntry->setProperties(properties);
+
+    QList<data::ptr<data::ContactGroup>> groups;
+    /*for (auto contactGroup : m_contactGroups)
+    {
+        if (contactGroup->getGoogleShortId() == "6")
+        {
+            groups.append(contactGroup);
+            break;
+        }
+    }*/
+    for (int i = 0; i < ui->groupsGroupBoxLayout->count() - 1; ++i)
+    {
+        QCheckBox* checkBox = qobject_cast<QCheckBox*>(ui->groupsGroupBoxLayout->itemAt(i)->widget());
+        if (checkBox->isChecked())
+        {
+            groups.append(m_checkBoxesToContactGroups.value(checkBox));
+        }
+    }
+    m_contactEntry->setContactGroups(groups);
 
     accept();
 }

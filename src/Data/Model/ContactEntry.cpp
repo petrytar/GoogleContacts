@@ -2,6 +2,7 @@
 
 #include "Data/debugAsserts.h"
 #include "Data/Model/ContactProperty.h"
+#include "Data/Model/ContactGroup.h"
 #include "Data/Model/User.h"
 #include "Data/Model/RelValue.h"
 
@@ -31,6 +32,8 @@ template <> void register_class(QxClass<data::ContactEntry>& t)
     t.data(&data::ContactEntry::m_orgTitle, "orgTitle");
 
     t.relationOneToMany(&data::ContactEntry::m_properties, "properties", "contactEntryId");
+
+    t.relationManyToMany(&data::ContactEntry::m_contactGroups, "list_groups", "ContactGroup_ContactEntry", "entry_id", "group_id");
 
     t.data(&data::ContactEntry::m_deleted, "deleted");
 }}
@@ -118,7 +121,7 @@ QString ContactEntry::getPrimaryPhoneNumber() const
     return QString();
 }
 
-void ContactEntry::fromXml(ptr<ContactEntry> contactEntry, const QDomElement& contactEntryElement)
+void ContactEntry::fromXml(ptr<ContactEntry> contactEntry, QList<ptr<ContactGroup>> contactGroups, const QDomElement& contactEntryElement)
 {
     auto createProperty = [](ptr<ContactEntry> parentEntry, QDomNode node, const QString& valueAttribute, ContactProperty::EType type) -> ContactPropertyPtr
     {
@@ -196,6 +199,22 @@ void ContactEntry::fromXml(ptr<ContactEntry> contactEntry, const QDomElement& co
         if (phoneNumberElement.attribute("uri").isEmpty())
         {
             contactProperty->setValue(phoneNumberElement.text());
+        }
+    }
+
+    QDomNodeList groupDomNodeList = contactEntryElement.elementsByTagName("groupMembershipInfo");
+    for (int i = 0; i < groupDomNodeList.size(); ++i)
+    {
+        QDomNode groupNode = groupDomNodeList.at(i);
+        QDomElement groupElement = groupNode.toElement();
+        QString groupId = groupElement.attribute("href");
+        for (auto contactGroup : contactGroups)
+        {
+            if (contactGroup->getGoogleId() == groupId)
+            {
+                contactEntry->addContactGroup(contactGroup);
+                break;
+            }
         }
     }
 }
@@ -285,6 +304,14 @@ QString ContactEntry::toXml()
         }
     }
 
+    for (ContactGroupPtr contactGroup : m_contactGroups)
+    {
+        QDomElement groupElement = document.createElement("gContact:groupMembershipInfo");
+        entryElement.appendChild(groupElement);
+        groupElement.setAttribute("deleted", "false");
+        groupElement.setAttribute("href", contactGroup->getGoogleId());
+    }
+
     return document.toString(2);
 }
 
@@ -296,6 +323,11 @@ QString ContactEntry::getGoogleShortId() const
         return QString();
     }
     return m_googleId.mid(indexOfSlash + 1);
+}
+
+bool ContactEntry::removeContactGroup(ContactGroupPtr contactGroup)
+{
+    return m_contactGroups.removeOne(contactGroup);
 }
 
 } // namespace data
