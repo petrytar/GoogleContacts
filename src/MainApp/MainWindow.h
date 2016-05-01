@@ -56,6 +56,8 @@ private slots:
     void initNewUser();
     void setActiveUser(data::ptr<data::User> user);
 
+    void onGroupRadioButtonToggled();
+
     void on_syncButton_clicked();
     void on_editButton_clicked();
     void on_entriesTreeWidget_itemSelectionChanged();
@@ -79,6 +81,8 @@ private:
     void fillContactGroupsTreeWidget();
     void fillContactEntriesTreeWidget();
     void updateContactEntryItem(QTreeWidgetItem* item);
+    void showFilteredContactEntryItems();
+    QList<QTreeWidgetItem*> filterContactEntryItems(QList<QTreeWidgetItem*> contactEntryTreeItems);
 
     void setUserContactSingleValueRows(int column, const QStringList& userContactNames);
     void setUserContactListValueRows(int column, const QList<QStringList>& phoneNumbersList);
@@ -92,6 +96,7 @@ private:
     data::GoogleContacts* m_googleContacts;
 
     QMap<QRadioButton*, data::ptr<data::ContactGroup>> m_groupRadioButtons;
+    QList<QTreeWidgetItem*> m_allContactEntryTreeItems;
 };
 
 #endif // MAINAPP_MAINWINDOW_H

@@ -50,6 +50,7 @@ void MainWindow::adjustUi()
     setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), qApp->desktop()->availableGeometry()));
 
     m_groupRadioButtons.insert(ui->allGroupsRadioButton, data::ptr<data::ContactGroup>());
+    VERIFY(connect(ui->allGroupsRadioButton, SIGNAL(toggled(bool)), this, SLOT(onGroupRadioButtonToggled())));
 
     ui->entriesTreeWidget->setHeaderLabels(QStringList() << "Name" << "Email" << "Phone");
     ui->entriesTreeWidget->setColumnWidth(E_COLUMN_NAME_TO_DISPLAY, 200);
@@ -198,6 +199,7 @@ void MainWindow::fillContactGroupsTreeWidget()
         }
 
         QRadioButton* radioButton = new QRadioButton(ui->groupsGroupBox);
+        VERIFY(connect(radioButton, SIGNAL(toggled(bool)), this, SLOT(onGroupRadioButtonToggled())));
         radioButton->setText(contactGroup->getTitle());
         ui->groupsGroupBoxLayout->insertWidget(ui->groupsGroupBoxLayout->count() - 1, radioButton);
         m_groupRadioButtons.insert(radioButton, contactGroup);
@@ -225,10 +227,20 @@ void MainWindow::fillContactGroupsTreeWidget()
     }
 }
 
+void MainWindow::onGroupRadioButtonToggled()
+{
+    QRadioButton* radioButton = qobject_cast<QRadioButton*>(sender());
+    if (radioButton->isChecked())
+    {
+        showFilteredContactEntryItems();
+    }
+}
+
 void MainWindow::fillContactEntriesTreeWidget()
 {
-    QList<data::ptr<data::ContactEntry>> contacts = m_googleContacts->getContacts();
+    QList<QTreeWidgetItem*> newAllTreeWidgetItems;
 
+    QList<data::ptr<data::ContactEntry>> contacts = m_googleContacts->getContacts();
     std::set<data::ptr<data::ContactEntry>> newContactEntries;
     for (auto contactEntry : contacts)
     {
@@ -236,18 +248,19 @@ void MainWindow::fillContactEntriesTreeWidget()
     }
 
     std::set<data::ptr<data::ContactEntry>> displayedContactEntries;
-    for (int i = ui->entriesTreeWidget->topLevelItemCount() - 1; i >= 0; --i)
+    for (QTreeWidgetItem* item : m_allContactEntryTreeItems)
     {
-        QTreeWidgetItem* item = ui->entriesTreeWidget->topLevelItem(i);
         data::ptr<data::ContactEntry> contactEntry = item->data(0, Qt::UserRole).value<data::ptr<data::ContactEntry>>();
+
         if (contactEntry->isDeleted() || newContactEntries.find(contactEntry) == newContactEntries.end())
         {
-            ui->entriesTreeWidget->takeTopLevelItem(i);
+            ui->entriesTreeWidget->takeTopLevelItem(ui->entriesTreeWidget->indexOfTopLevelItem(item));
             delete item;
         }
         else
         {
             displayedContactEntries.insert(contactEntry);
+            newAllTreeWidgetItems.push_back(item);
         }
     }
 
@@ -255,11 +268,68 @@ void MainWindow::fillContactEntriesTreeWidget()
     {
         if (!contactEntry->isDeleted() && displayedContactEntries.find(contactEntry) == displayedContactEntries.end())
         {
-            QTreeWidgetItem* item = new QTreeWidgetItem(ui->entriesTreeWidget);
+            QTreeWidgetItem* item = new QTreeWidgetItem();
             item->setData(0, Qt::UserRole, QVariant::fromValue(contactEntry));
+            newAllTreeWidgetItems.push_back(item);
+        }
+    }
+
+    m_allContactEntryTreeItems = newAllTreeWidgetItems;
+    showFilteredContactEntryItems();
+}
+
+void MainWindow::showFilteredContactEntryItems()
+{
+    QList<QTreeWidgetItem*> contactEntryTreeItems = filterContactEntryItems(m_allContactEntryTreeItems);
+
+    for (int i = ui->entriesTreeWidget->topLevelItemCount() - 1; i >= 0; --i)
+    {
+        QTreeWidgetItem* item = ui->entriesTreeWidget->topLevelItem(i);
+        if (!contactEntryTreeItems.contains(item))
+        {
+            ui->entriesTreeWidget->takeTopLevelItem(i);
+        }
+        else
+        {
             updateContactEntryItem(item);
         }
     }
+
+    for (QTreeWidgetItem* item : contactEntryTreeItems)
+    {
+        if (ui->entriesTreeWidget->indexOfTopLevelItem(item) < 0)
+        {
+            ui->entriesTreeWidget->addTopLevelItem(item);
+            updateContactEntryItem(item);
+        }
+    }
+}
+
+QList<QTreeWidgetItem*> MainWindow::filterContactEntryItems(QList<QTreeWidgetItem*> contactEntryTreeItems)
+{
+    QList<QTreeWidgetItem*> filteredContactEntryItems;
+
+    data::ptr<data::ContactGroup> currentContactGroup;
+    for (QRadioButton* radioButton : m_groupRadioButtons.keys())
+    {
+        if (radioButton->isChecked())
+        {
+            currentContactGroup = m_groupRadioButtons.value(radioButton);
+            break;
+        }
+    }
+
+    for (QTreeWidgetItem* item : contactEntryTreeItems)
+    {
+        data::ptr<data::ContactEntry> contactEntry = item->data(0, Qt::UserRole).value<data::ptr<data::ContactEntry>>();
+        if (currentContactGroup && !contactEntry->getContactGroups().contains(currentContactGroup))
+        {
+            continue;
+        }
+
+        filteredContactEntryItems.push_back(item);
+    }
+    return filteredContactEntryItems;
 }
 
 void MainWindow::updateContactEntryItem(QTreeWidgetItem* item)
@@ -302,7 +372,7 @@ void MainWindow::on_editButton_clicked()
     auto onAccepted = [this, selectedItem, contactEntry]()
     {
         m_database->update(contactEntry);
-        updateContactEntryItem(selectedItem);
+        showFilteredContactEntryItems();
     };
     VERIFY(connect(editContactEntryDialog, &QDialog::accepted, onAccepted));
     editContactEntryDialog->open();
