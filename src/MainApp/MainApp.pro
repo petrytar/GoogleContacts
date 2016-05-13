@@ -1,7 +1,7 @@
 include($$PWD/../3rdParty/QxOrm/QxOrm.pri)
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets core gui network webkit webkitwidgets
 
-TARGET      = MainApp
+TARGET      = GoogleContacts
 TEMPLATE    = app
 CONFIG     += c++11
 

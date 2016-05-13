@@ -34,3 +34,5 @@ bin_release_*/
 #QtCtreator Qml
 *.qmlproject.user
 *.qmlproject.user.*
+
+*.db
