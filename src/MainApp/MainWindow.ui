@@ -17,6 +17,11 @@
    <iconset resource="../../resources/resources.qrc">
     <normaloff>:/contacts.png</normaloff>:/contacts.png</iconset>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QStatusBar::item {
+border: none;
+} </string>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>

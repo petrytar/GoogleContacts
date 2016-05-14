@@ -1,0 +1,3 @@
+contacts.png - http://www.iconspedia.com/icon/google-contacts--745.html
+green_status.png - Qt 5.5 Sources (qtwebkit\Source\WebInspectorUI\UserInterface\Images)
+red_status.png - Qt 5.5 Sources (qtwebkit\Source\WebInspectorUI\UserInterface\Images)

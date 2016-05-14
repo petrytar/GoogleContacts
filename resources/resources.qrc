@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>OAuth_2.0_client_ID.json</file>
         <file>contacts.png</file>
+        <file>green_status.png</file>
+        <file>red_status.png</file>
     </qresource>
 </RCC>

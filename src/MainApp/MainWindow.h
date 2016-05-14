@@ -11,6 +11,7 @@ class QNetworkAccessManager;
 class QTreeWidgetItem;
 class QRadioButton;
 class QTimer;
+class QLabel;
 
 namespace data
 {
@@ -108,8 +109,12 @@ private:
     void setUserContactSingleValueRows(int column, const QStringList& userContactNames);
     void setUserContactListValueRows(int column, const QList<QStringList>& phoneNumbersList);
 
+    void updateStatusLabel(bool ok, const QString& message);
+
     Ui::MainWindow* ui;
     LoginDialog* m_loginDialog;
+    QLabel* m_statusLabel;
+    QLabel* m_statusIconLabel;
 
     Settings* m_settings;
 
