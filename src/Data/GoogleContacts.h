@@ -43,6 +43,8 @@ public:
 
     void syncGroupsAndContacts();
 
+    QList<ptr<ContactEntry>> findContacts(const QString& str);
+
 signals:
     void groupsSyncSuccessful();
     void contactsSyncSuccessful();

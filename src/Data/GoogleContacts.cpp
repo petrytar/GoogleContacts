@@ -404,7 +404,7 @@ bool GoogleContacts::finalizeAndCheckErrorsOnReply(const QString& description, Q
     }
     qDebug() << "Error reply contents:";
     QString xml(reply->readAll());
-    std::cout << xml.toStdString() << std::endl;
+    //std::cout << xml.toStdString() << std::endl;
     if (reply->error() == QNetworkReply::AuthenticationRequiredError)
     {
         qDebug() << "Access token is not valid!";
@@ -427,7 +427,7 @@ void GoogleContacts::sendCreateContactEntryRequest(ptr<ContactEntry> contactEntr
     request.setRawHeader("Content-Type", "application/atom+xml");
 
     QString xml = contactEntry->toXml();
-    std::cout << xml.toStdString() << std::endl;
+    //std::cout << xml.toStdString() << std::endl;
 
     QNetworkReply* reply = m_networkAccessManager->post(request, xml.toUtf8());
     auto onReplyFinished = [this, reply, contactEntry]()
@@ -445,7 +445,7 @@ void GoogleContacts::processCreateContactEntryReply(ptr<ContactEntry> contactEnt
 {
     qDebug() << "Create contact reply:";
     QString xml(reply->readAll());
-    std::cout << xml.toStdString() << std::endl;
+    //std::cout << xml.toStdString() << std::endl;
     QList<ptr<ContactEntry>> createContactEntries = parseContactEntries(xml);
     assert(createContactEntries.size() == 1);
     m_database->update(contactEntry, createContactEntries.at(0));
@@ -489,7 +489,7 @@ void GoogleContacts::sendUpdateContactEntryRequest(ptr<ContactEntry> contactEntr
     request.setRawHeader("If-Match", "*");
 
     QString xml = contactEntry->toXml();
-    std::cout << xml.toStdString() << std::endl;
+    //std::cout << xml.toStdString() << std::endl;
 
     QNetworkReply* reply = m_networkAccessManager->put(request, xml.toUtf8());
     auto onReplyFinished = [this, reply, contactEntry]()
@@ -507,10 +507,29 @@ void GoogleContacts::processUpdateContactEntryReply(ptr<ContactEntry> contactEnt
 {
     qDebug() << "Update contact reply:";
     QString xml(reply->readAll());
-    std::cout << xml.toStdString() << std::endl;
+    //std::cout << xml.toStdString() << std::endl;
     QList<ptr<ContactEntry>> updatedContactEntries = parseContactEntries(xml);
     assert(updatedContactEntries.size() == 1);
     m_database->update(contactEntry, updatedContactEntries.at(0));
+}
+
+QList<ptr<ContactEntry>> GoogleContacts::findContacts(const QString& str)
+{
+    QRegExp regExp(str);
+    regExp.setCaseSensitivity(Qt::CaseInsensitive);
+    regExp.setPatternSyntax(QRegExp::Wildcard);
+
+    QList<ptr<ContactEntry>> foundContactEntries;
+    for (ptr<ContactEntry> contactEntry : m_contactEntries)
+    {
+        if (contactEntry->getVisibleName().contains(regExp)
+                || contactEntry->getPrimaryEmail().contains(regExp)
+                || contactEntry->getPrimaryPhoneNumber().contains(regExp))
+        {
+            foundContactEntries.append(contactEntry);
+        }
+    }
+    return foundContactEntries;
 }
 
 } // namespace data

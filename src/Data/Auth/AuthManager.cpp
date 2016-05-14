@@ -104,8 +104,8 @@ bool AuthManager::finalizeAndCheckErrorsOnReply(const QString& description, QNet
     }
     qDebug() << "Error reply contents:";
     QByteArray replyData = reply->readAll();
-    QString replyText(replyData);
-    std::cout << replyText.toStdString() << std::endl;
+    //QString replyText(replyData);
+    //std::cout << replyText.toStdString() << std::endl;
 
     QJsonParseError parseError;
     QJsonDocument json = QJsonDocument::fromJson(replyData, &parseError);
