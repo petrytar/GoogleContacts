@@ -98,6 +98,12 @@ void EditContactEntryDialog::onSaveButtonClicked()
             data::ptr<data::ContactProperty> property = item->data(0, Qt::UserRole).value<data::ptr<data::ContactProperty>>();
             QString urlForRelValue = data::RelValue::getUrlFromLabel(item->text(0).trimmed());
             QString label = urlForRelValue.isEmpty() ? item->text(0).trimmed() : urlForRelValue;
+            if (label.isEmpty())
+            {
+                // Either rel value should be specified or non-empty label string
+                // If not, entry will be rejected by server. Google UI replaces empty labels with "Other" rel value
+                label = data::RelValue::getUrl(data::RelValue::E_REL_VALUE_OTHER);
+            }
             property->setLabel(label);
             property->setValue(item->text(1).trimmed());
             properties.append(property);

@@ -34,9 +34,7 @@ private slots:
     void onSaveButtonClicked();
 
     void on_propertiesTreeWidget_itemSelectionChanged();
-
     void on_addButton_clicked();
-
     void on_deleteButton_clicked();
 
 private:
