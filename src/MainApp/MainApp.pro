@@ -18,7 +18,10 @@ SOURCES    += \
     ComboBoxDelegate.cpp \
     SelectUserDialog.cpp \
     EditContactEntryDialog.cpp \
-    ContactPropertyComboBoxDelegate.cpp
+    ContactPropertyComboBoxDelegate.cpp \
+    OptionsDialog.cpp \
+    GrabLineEdit.cpp \
+    Settings.cpp
 
 HEADERS    += \
     MainWindow.h \
@@ -27,13 +30,17 @@ HEADERS    += \
     SelectUserDialog.h \
     EditContactEntryDialog.h \
     MainApp_global.h \
-    ContactPropertyComboBoxDelegate.h
+    ContactPropertyComboBoxDelegate.h \
+    OptionsDialog.h \
+    GrabLineEdit.h \
+    Settings.h
 
 FORMS      += \
     MainWindow.ui \
     LoginDialog.ui \
     SelectUserDialog.ui \
-    EditContactEntryDialog.ui
+    EditContactEntryDialog.ui \
+    OptionsDialog.ui
 
 win32 {
     LIBS += -L$$OUT_PWD/../../libs/win32/ -llibeay32 -lssleay32

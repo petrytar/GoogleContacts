@@ -12,6 +12,8 @@
 #include "MainApp/LoginDialog.h"
 #include "MainApp/SelectUserDialog.h"
 #include "MainApp/EditContactEntryDialog.h"
+#include "MainApp/OptionsDialog.h"
+#include "MainApp/Settings.h"
 
 #include <QDesktopWidget>
 #include <QMessageBox>
@@ -21,6 +23,7 @@
 MainWindow::MainWindow(QWidget* parent) :
     BaseClass(parent),
     ui(new Ui::MainWindow),
+    m_settings(new Settings(this)),
     m_networkAccessManager(new QNetworkAccessManager(this)),
     m_authManager(new data::AuthManager(m_networkAccessManager, this)),
     m_database(new data::Database(this)),
@@ -28,6 +31,8 @@ MainWindow::MainWindow(QWidget* parent) :
 {
     ui->setupUi(this);
     adjustUi();
+
+    applySettings();
 
     VERIFY(connect(m_authManager, SIGNAL(newUserInitialiazed(data::ptr<data::User>)), this, SLOT(onNewUserInitialized(data::ptr<data::User>))));
     VERIFY(connect(m_authManager, SIGNAL(error()), this, SLOT(onAuthFailed())));
@@ -56,6 +61,19 @@ void MainWindow::adjustUi()
     ui->entriesTreeWidget->setColumnWidth(E_COLUMN_NAME_TO_DISPLAY, 200);
     ui->entriesTreeWidget->setColumnWidth(E_COLUMN_EMAILS, 150);
     ui->entriesTreeWidget->setIndentation(0);
+
+    ui->actionEditContact->setEnabled(false);
+    ui->actionDeleteContact->setEnabled(false);
+}
+
+void MainWindow::applySettings()
+{
+    ui->actionNewContact->setShortcut(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_NEW_CONTACT)));
+    ui->actionEditContact->setShortcut(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_EDIT_CONTACT)));
+    ui->actionDeleteContact->setShortcut(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_DELETE_CONTACT)));
+    ui->actionSynchronize->setShortcut(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_SYNCHRONIZE)));
+    ui->actionOptions->setShortcut(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_OPTIONS)));
+    ui->actionExit->setShortcut(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_EXIT)));
 }
 
 MainWindow::~MainWindow()
@@ -392,12 +410,22 @@ void MainWindow::setUserContactListValueRows(int column, const QList<QStringList
     }
 }
 
-void MainWindow::on_syncButton_clicked()
+void MainWindow::synchronizeContacts()
 {
     m_googleContacts->syncGroupsAndContacts();
 }
 
-void MainWindow::on_editButton_clicked()
+void MainWindow::on_actionSynchronize_triggered()
+{
+    synchronizeContacts();
+}
+
+void MainWindow::on_syncButton_clicked()
+{
+    synchronizeContacts();
+}
+
+void MainWindow::editContact()
 {
     QTreeWidgetItem* selectedItem = ui->entriesTreeWidget->selectedItems().at(0);
     data::ptr<data::ContactEntry> contactEntry = selectedItem->data(0, Qt::UserRole).value<data::ptr<data::ContactEntry>>();
@@ -411,14 +439,26 @@ void MainWindow::on_editButton_clicked()
     editContactEntryDialog->open();
 }
 
+void MainWindow::on_actionEditContact_triggered()
+{
+    editContact();
+}
+
+void MainWindow::on_editButton_clicked()
+{
+    editContact();
+}
+
 void MainWindow::on_entriesTreeWidget_itemSelectionChanged()
 {
     bool hasSelectedItem = !ui->entriesTreeWidget->selectedItems().empty();
     ui->editButton->setEnabled(hasSelectedItem);
+    ui->actionEditContact->setEnabled(hasSelectedItem);
     ui->deleteButton->setEnabled(hasSelectedItem);
+    ui->actionDeleteContact->setEnabled(hasSelectedItem);
 }
 
-void MainWindow::on_newButton_clicked()
+void MainWindow::createNewContact()
 {
     data::ptr<data::ContactEntry> newContactEntry(new data::ContactEntry());
     EditContactEntryDialog* editContactEntryDialog = new EditContactEntryDialog(newContactEntry, m_googleContacts->getGroups(), this);
@@ -431,7 +471,17 @@ void MainWindow::on_newButton_clicked()
     editContactEntryDialog->open();
 }
 
-void MainWindow::on_deleteButton_clicked()
+void MainWindow::on_newButton_clicked()
+{
+    createNewContact();
+}
+
+void MainWindow::on_actionNewContact_triggered()
+{
+    createNewContact();
+}
+
+void MainWindow::deleteContact()
 {
     QTreeWidgetItem* selectedItem = ui->entriesTreeWidget->selectedItems().at(0);
         int result = QMessageBox::question(this, "Delete contact", QString("Do you want to delete the selected contact entry?"),
@@ -445,7 +495,38 @@ void MainWindow::on_deleteButton_clicked()
     }
 }
 
+void MainWindow::on_deleteButton_clicked()
+{
+    deleteContact();
+}
+
+void MainWindow::on_actionDeleteContact_triggered()
+{
+    deleteContact();
+}
+
 void MainWindow::on_findLineEdit_textChanged()
 {
     showFilteredContactEntryItems();
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+    close();
+}
+
+void MainWindow::showOptionsDialog()
+{
+    OptionsDialog* optionsDialog = new OptionsDialog(m_settings, this);
+    auto onAccepted = [this]()
+    {
+        applySettings();
+    };
+    VERIFY(connect(optionsDialog, &QDialog::accepted, onAccepted));
+    optionsDialog->open();
+}
+
+void MainWindow::on_actionOptions_triggered()
+{
+    showOptionsDialog();
 }

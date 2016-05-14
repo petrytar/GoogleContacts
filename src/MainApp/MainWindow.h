@@ -21,6 +21,7 @@ class ContactGroup;
 }
 
 class LoginDialog;
+class Settings;
 
 namespace Ui
 {
@@ -63,8 +64,13 @@ private slots:
     void on_entriesTreeWidget_itemSelectionChanged();
     void on_newButton_clicked();
     void on_deleteButton_clicked();
-
     void on_findLineEdit_textChanged();
+    void on_actionNewContact_triggered();
+    void on_actionEditContact_triggered();
+    void on_actionDeleteContact_triggered();
+    void on_actionSynchronize_triggered();
+    void on_actionExit_triggered();
+    void on_actionOptions_triggered();
 
 private:
     // helping enum for tableWidget columns
@@ -80,6 +86,14 @@ private:
     /// Customize the appearance of dialogue
     void adjustUi();
 
+    void applySettings();
+
+    void createNewContact();
+    void editContact();
+    void deleteContact();
+    void synchronizeContacts();
+    void showOptionsDialog();
+
     void fillContactGroupsTreeWidget();
     void fillContactEntriesTreeWidget();
     void updateContactEntryItem(QTreeWidgetItem* item);
@@ -93,6 +107,8 @@ private:
 
     Ui::MainWindow* ui;
     LoginDialog* m_loginDialog;
+
+    Settings* m_settings;
 
     QNetworkAccessManager* m_networkAccessManager;
     data::AuthManager* m_authManager;
