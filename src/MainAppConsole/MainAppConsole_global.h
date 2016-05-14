@@ -12,5 +12,11 @@ inline QTextStream& qStdOut()
     return ts;
 }
 
+inline QTextStream& qStdIn()
+{
+    static QTextStream ts(stdin);
+    return ts;
+}
+
 #endif // MAINAPPCONSOLE_GLOBAL
 

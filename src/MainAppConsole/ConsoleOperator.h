@@ -22,7 +22,11 @@ private:
 public:
     explicit ConsoleOperator(QObject* parent = 0);
 
-    void findContacts(const QString& str);
+    bool init();
+
+    void findContacts(const QString& pattern);
+    void createContact(const QString& name);
+    void deleteContacts(const QString& pattern);
 
 public slots:
     void syncContacts();

@@ -29,11 +29,25 @@ ConsoleOperator::ConsoleOperator(QObject* parent) :
     VERIFY(connect(m_googleContacts, SIGNAL(otherError(QNetworkReply::NetworkError)), this, SLOT(onContactsOtherError(QNetworkReply::NetworkError))));
 }
 
-void ConsoleOperator::findContacts(const QString& str)
+bool ConsoleOperator::init()
 {
-    auto findCallBack = [this, str]()
+    auto users = m_database->getUsers();
+    if (users.empty())
     {
-        QList<data::ptr<data::ContactEntry>> contactEntries = m_googleContacts->findContacts(str);
+        qStdOut() << "You are not logged into any user account! Please log in through GoogleContacts.exe application" << endl;
+        return false;
+    }
+
+    data::ptr<data::User> user = users.at(0);
+    m_googleContacts->setActiveUser(user);
+    return true;
+}
+
+void ConsoleOperator::findContacts(const QString& pattern)
+{
+    auto findCallBack = [this, pattern]()
+    {
+        QList<data::ptr<data::ContactEntry>> contactEntries = m_googleContacts->findContacts(pattern);
         if (contactEntries.empty())
         {
             qStdOut() << "No contact entries found" << endl;
@@ -54,18 +68,52 @@ void ConsoleOperator::findContacts(const QString& str)
     syncContacts();
 }
 
-void ConsoleOperator::syncContacts()
+void ConsoleOperator::createContact(const QString& name)
 {
-    auto users = m_database->getUsers();
-    if (users.empty())
+    data::ptr<data::ContactEntry> newContactEntry(new data::ContactEntry());
+    newContactEntry->setName(name);
+    m_googleContacts->addContact(newContactEntry);
+    VERIFY(connect(m_googleContacts, SIGNAL(contactsSyncSuccessful()), this, SLOT(onContactsSyncSuccessful())));
+    syncContacts();
+}
+
+void ConsoleOperator::deleteContacts(const QString& pattern)
+{
+    QList<data::ptr<data::ContactEntry>> contactEntries = m_googleContacts->findContacts(pattern);
+    if (contactEntries.empty())
     {
-        qStdOut() << "You are not logged into any user account! Please log in through GoogleContacts.exe application" << endl;
-        QCoreApplication::exit(-1);
+        qStdOut() << "No contact entries found to delete" << endl;
+        QCoreApplication::exit();
         return;
     }
 
-    data::ptr<data::User> user = users.at(0);
-    m_googleContacts->setActiveUser(user);
+    qStdOut() << "Contact entries found:" << endl;
+    for (auto contactEntry : contactEntries)
+    {
+        qStdOut() << "Name: \"" << contactEntry->getVisibleName() << "\" "
+                  << "Email: \"" << contactEntry->getPrimaryEmail() << "\" "
+                  << "Phone: \"" << contactEntry->getPrimaryPhoneNumber() << "\"" << endl;
+    }
+    qStdOut() << "Do you want to delete these entries (Y/N)? " << endl;
+    QString answer = qStdIn().readLine();
+    if (answer.trimmed().toLower() != "y")
+    {
+        QCoreApplication::exit();
+        return;
+    }
+
+    for (auto contactEntry : contactEntries)
+    {
+        contactEntry->setDeleted(true);
+        m_database->save(contactEntry);
+    }
+
+    VERIFY(connect(m_googleContacts, SIGNAL(contactsSyncSuccessful()), this, SLOT(onContactsSyncSuccessful())));
+    syncContacts();
+}
+
+void ConsoleOperator::syncContacts()
+{
     m_googleContacts->syncGroupsAndContacts();
 }
 
