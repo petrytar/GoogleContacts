@@ -19,6 +19,7 @@
 #include <QMessageBox>
 #include <QNetworkAccessManager>
 #include <QSplitter>
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget* parent) :
     BaseClass(parent),
@@ -27,7 +28,8 @@ MainWindow::MainWindow(QWidget* parent) :
     m_networkAccessManager(new QNetworkAccessManager(this)),
     m_authManager(new data::AuthManager(m_networkAccessManager, this)),
     m_database(new data::Database(this)),
-    m_googleContacts(new data::GoogleContacts(m_networkAccessManager, m_database, this))
+    m_googleContacts(new data::GoogleContacts(m_networkAccessManager, m_database, this)),
+    m_syncTimer(new QTimer(this))
 {
     ui->setupUi(this);
     adjustUi();
@@ -42,6 +44,7 @@ MainWindow::MainWindow(QWidget* parent) :
     VERIFY(connect(m_googleContacts, SIGNAL(contactsSyncSuccessful()), this, SLOT(onContactsSyncSuccessful())));
     VERIFY(connect(m_googleContacts, SIGNAL(authorizationError()), this, SLOT(onContactsAuthorizationError())));
     VERIFY(connect(m_googleContacts, SIGNAL(otherError(QNetworkReply::NetworkError)), this, SLOT(onContactsOtherError(QNetworkReply::NetworkError))));
+    VERIFY(connect(m_syncTimer, SIGNAL(timeout()), this, SLOT(onSyncTimerTimeout())));
 }
 
 void MainWindow::adjustUi()
@@ -74,6 +77,12 @@ void MainWindow::applySettings()
     ui->actionSynchronize->setShortcut(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_SYNCHRONIZE)));
     ui->actionOptions->setShortcut(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_OPTIONS)));
     ui->actionExit->setShortcut(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_EXIT)));
+
+    m_syncTimer->setInterval(m_settings->getValue(Settings::E_SYNCHRONIZATION_INTERVAL).toInt() * 1000);
+    if (m_syncTimer->isActive())
+    {
+        m_syncTimer->start();
+    }
 }
 
 MainWindow::~MainWindow()
@@ -115,6 +124,7 @@ void MainWindow::setActiveUser(data::ptr<data::User> user)
     fillContactGroupsTreeWidget();
     fillContactEntriesTreeWidget();
     m_googleContacts->syncGroupsAndContacts();
+    m_syncTimer->start();
     show();
 }
 
@@ -529,4 +539,19 @@ void MainWindow::showOptionsDialog()
 void MainWindow::on_actionOptions_triggered()
 {
     showOptionsDialog();
+}
+
+void MainWindow::onSyncTimerTimeout()
+{
+    // Disable synchronization when some dialog is opened
+    QList<QDialog*> dialogs = findChildren<QDialog*>();
+    for (QDialog* dialog : dialogs)
+    {
+        if (dialog->isVisible())
+        {
+            return;
+        }
+    }
+    //qDebug() << "Timer timeout" << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
+    synchronizeContacts();
 }

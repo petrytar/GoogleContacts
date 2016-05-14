@@ -36,6 +36,10 @@ QString Settings::getPropertyKey(EProperty property)
         {
             return "E_SHORTCUT_EXIT";
         }
+        case E_SYNCHRONIZATION_INTERVAL:
+        {
+            return "E_SYNCHRONIZATION_INTERVAL";
+        }
     }
 
     return QString();
@@ -68,6 +72,10 @@ QString Settings::getDefaultValue(EProperty property)
         case E_SHORTCUT_EXIT:
         {
             return "Ctrl+Q";
+        }
+        case E_SYNCHRONIZATION_INTERVAL:
+        {
+            return "15";
         }
     }
 

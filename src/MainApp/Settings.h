@@ -21,7 +21,8 @@ public:
         E_SHORTCUT_DELETE_CONTACT,
         E_SHORTCUT_SYNCHRONIZE,
         E_SHORTCUT_OPTIONS,
-        E_SHORTCUT_EXIT
+        E_SHORTCUT_EXIT,
+        E_SYNCHRONIZATION_INTERVAL  // in seconds
     };
 
     QString getValue(EProperty property);

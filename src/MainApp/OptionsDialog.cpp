@@ -17,6 +17,7 @@ OptionsDialog::OptionsDialog(Settings* settings, QWidget *parent) :
     ui->syncEdit->setText(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_SYNCHRONIZE)).toString());
     ui->exitEdit->setText(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_EXIT)).toString());
     ui->optionsEdit->setText(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_OPTIONS)).toString());
+    ui->syncIntervalSpinBox->setValue(m_settings->getValue(Settings::E_SYNCHRONIZATION_INTERVAL).toInt());
 }
 
 OptionsDialog::~OptionsDialog()
@@ -32,6 +33,7 @@ void OptionsDialog::accept()
     m_settings->setValue(Settings::E_SHORTCUT_SYNCHRONIZE, QKeySequence(ui->syncEdit->text()).toString());
     m_settings->setValue(Settings::E_SHORTCUT_EXIT, QKeySequence(ui->exitEdit->text()).toString());
     m_settings->setValue(Settings::E_SHORTCUT_OPTIONS, QKeySequence(ui->optionsEdit->text()).toString());
+    m_settings->setValue(Settings::E_SYNCHRONIZATION_INTERVAL, QString::number(ui->syncIntervalSpinBox->value()));
     BaseClass::accept();
 }
 
@@ -43,6 +45,7 @@ void OptionsDialog::on_resetToDefaultButton_clicked()
     ui->syncEdit->setText(QKeySequence(m_settings->getDefaultValue(Settings::E_SHORTCUT_SYNCHRONIZE)).toString());
     ui->exitEdit->setText(QKeySequence(m_settings->getDefaultValue(Settings::E_SHORTCUT_EXIT)).toString());
     ui->optionsEdit->setText(QKeySequence(m_settings->getDefaultValue(Settings::E_SHORTCUT_OPTIONS)).toString());
+    ui->syncIntervalSpinBox->setValue(m_settings->getDefaultValue(Settings::E_SYNCHRONIZATION_INTERVAL).toInt());
 }
 
 void OptionsDialog::on_resetNewContactButton_clicked()

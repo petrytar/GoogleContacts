@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>296</width>
-    <height>296</height>
+    <width>294</width>
+    <height>327</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,71 +15,56 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Automatic Synchronization</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QLabel" name="label_7">
+        <property name="maximumSize">
+         <size>
+          <width>76</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Interval:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="syncIntervalSpinBox">
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="minimum">
+         <number>5</number>
+        </property>
+        <property name="maximum">
+         <number>999999999</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>[s]</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Shortcuts</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Synchronize:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Delete Contact:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="GrabLineEdit" name="deleteContactEdit"/>
-      </item>
-      <item row="4" column="1">
-       <widget class="GrabLineEdit" name="optionsEdit"/>
-      </item>
-      <item row="1" column="1">
-       <widget class="GrabLineEdit" name="editContactEdit"/>
-      </item>
-      <item row="3" column="1">
-       <widget class="GrabLineEdit" name="syncEdit"/>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Options:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Edit Contact:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>New Contact:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="0" column="2">
        <widget class="QPushButton" name="resetNewContactButton">
         <property name="sizePolicy">
@@ -180,6 +165,66 @@
          <string>Reset</string>
         </property>
        </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Synchronize:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Delete Contact:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="GrabLineEdit" name="deleteContactEdit"/>
+      </item>
+      <item row="4" column="1">
+       <widget class="GrabLineEdit" name="optionsEdit"/>
+      </item>
+      <item row="1" column="1">
+       <widget class="GrabLineEdit" name="editContactEdit"/>
+      </item>
+      <item row="3" column="1">
+       <widget class="GrabLineEdit" name="syncEdit"/>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Options:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Edit Contact:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>New Contact:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>

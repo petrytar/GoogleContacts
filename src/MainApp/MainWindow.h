@@ -10,6 +10,7 @@
 class QNetworkAccessManager;
 class QTreeWidgetItem;
 class QRadioButton;
+class QTimer;
 
 namespace data
 {
@@ -58,6 +59,8 @@ private slots:
     void setActiveUser(data::ptr<data::User> user);
 
     void onGroupRadioButtonToggled();
+
+    void onSyncTimerTimeout();
 
     void on_syncButton_clicked();
     void on_editButton_clicked();
@@ -114,6 +117,8 @@ private:
     data::AuthManager* m_authManager;
     data::Database* m_database;
     data::GoogleContacts* m_googleContacts;
+
+    QTimer* m_syncTimer;
 
     QMap<QRadioButton*, data::ptr<data::ContactGroup>> m_groupRadioButtons;
     QList<QTreeWidgetItem*> m_allContactEntryTreeItems;
