@@ -195,7 +195,7 @@ void GoogleContacts::syncContactGroups(QList<ptr<ContactGroup>> newContactGroups
 
 void GoogleContacts::syncContacts()
 {
-    QNetworkRequest request(QUrl("https://www.google.com/m8/feeds/contacts/default/full"));
+    QNetworkRequest request(QUrl("https://www.google.com/m8/feeds/contacts/default/full?max-results=2000"));
     request.setRawHeader("GData-Version", "3.0");
     request.setRawHeader("Authorization", QString("Bearer %1").arg(getAccessToken()).toUtf8());
 
