@@ -94,6 +94,8 @@ void Test_Database::test_savingContactEntriesToDatabase()
         }
     }
     QCOMPARE(isContactPhoneNumberFound && isContactEmailFound, true);
+
+    m_database->remove(tester);
 }
 
 } // namespace test
