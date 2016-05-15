@@ -5,6 +5,7 @@
 #include <QxRegister/QxRegister.h>
 
 class QDomElement;
+class QDomNode;
 
 namespace data
 {
@@ -79,6 +80,7 @@ public:
 
     static void fromXml(ptr<ContactEntry> contactEntry, QList<ContactGroupPtr> contactGroups, const QDomElement& contactEntryElement);
     QString toXml();
+    void toXmlDom(QDomNode& parentNode);
 
 private:
     long m_id;

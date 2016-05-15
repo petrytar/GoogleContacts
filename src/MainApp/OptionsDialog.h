@@ -32,6 +32,8 @@ private slots:
     void on_resetSyncButton_clicked();
     void on_resetOptionsButton_clicked();
     void on_resetToDefaultButton_clicked();
+    void on_resetExportButton_clicked();
+    void on_resetImportButton_clicked();
 
 private:
     Ui::OptionsDialog* ui;

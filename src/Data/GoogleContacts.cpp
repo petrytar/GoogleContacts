@@ -532,4 +532,48 @@ QList<ptr<ContactEntry>> GoogleContacts::findContacts(const QString& str)
     return foundContactEntries;
 }
 
+bool GoogleContacts::exportContacts(const QString& fileName)
+{
+    QDomDocument document;
+    document.appendChild(document.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\""));
+    QDomElement element = document.createElement("entries");
+    document.appendChild(element);
+    for (ptr<ContactEntry> contactEntry : m_contactEntries)
+    {
+        contactEntry->toXmlDom(element);
+    }
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        qDebug() << "Failed to open file for writing.";
+        return false;
+    }
+
+    QTextStream stream(&file);
+    stream << document.toString(2);
+    file.close();
+    return true;
+}
+
+bool GoogleContacts::importContacts(const QString& fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug() << "Failed to open file for reading.";
+        return false;
+    }
+
+    QTextStream stream(&file);
+    QList<ptr<ContactEntry>> contactEntries = parseContactEntries(stream.readAll());
+    for (auto contactEntry : contactEntries)
+    {
+        contactEntry->setGoogleId(QString());
+        contactEntry->setUpdatedTime(QDateTime::currentDateTime());
+        addContact(contactEntry);
+    }
+    return true;
+}
+
 } // namespace data

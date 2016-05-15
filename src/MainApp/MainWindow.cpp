@@ -20,6 +20,7 @@
 #include <QNetworkAccessManager>
 #include <QSplitter>
 #include <QTimer>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget* parent) :
     BaseClass(parent),
@@ -81,6 +82,8 @@ void MainWindow::applySettings()
     ui->actionEditContact->setShortcut(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_EDIT_CONTACT)));
     ui->actionDeleteContact->setShortcut(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_DELETE_CONTACT)));
     ui->actionSynchronize->setShortcut(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_SYNCHRONIZE)));
+    ui->actionExport->setShortcut(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_EXPORT)));
+    ui->actionImport->setShortcut(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_IMPORT)));
     ui->actionOptions->setShortcut(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_OPTIONS)));
     ui->actionExit->setShortcut(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_EXIT)));
 
@@ -573,4 +576,46 @@ void MainWindow::updateStatusLabel(bool ok, const QString& message)
         statusText.append(" - " + message);
     }
     m_statusLabel->setText(statusText);
+}
+
+void MainWindow::exportContacts()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, "Export Contacts As", "contacts.xml", "XML files (*.xml)");
+    if (fileName.isEmpty())
+    {
+        return;
+    }
+
+    if (!m_googleContacts->exportContacts(fileName))
+    {
+        QMessageBox::warning(this, "Warning", "Export of contacts failed.");
+    }
+}
+
+void MainWindow::on_actionExport_triggered()
+{
+    exportContacts();
+}
+
+void MainWindow::importContacts()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Import Contacts", QString(), "XML files (*.xml)");
+    if (fileName.isEmpty())
+    {
+        return;
+    }
+
+    if (!m_googleContacts->importContacts(fileName))
+    {
+        QMessageBox::warning(this, "Warning", "Import of contacts failed.");
+    }
+    else
+    {
+        fillContactEntriesTreeWidget();
+    }
+}
+
+void MainWindow::on_actionImport_triggered()
+{
+    importContacts();
 }

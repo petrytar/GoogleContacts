@@ -225,9 +225,15 @@ QString ContactEntry::toXml()
 {
     QDomDocument document;
     document.appendChild(document.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\""));
+    toXmlDom(document);
+    return document.toString(2);
+}
 
+void ContactEntry::toXmlDom(QDomNode& parentNode)
+{
+    QDomDocument document = parentNode.ownerDocument();
     QDomElement entryElement = document.createElement("entry");
-    document.appendChild(entryElement);
+    parentNode.appendChild(entryElement);
     entryElement.setAttribute("xmlns", "http://www.w3.org/2005/Atom");
     entryElement.setAttribute("xmlns:gd", "http://schemas.google.com/g/2005");
     entryElement.setAttribute("xmlns:gContact", "http://schemas.google.com/contact/2008");
@@ -313,8 +319,6 @@ QString ContactEntry::toXml()
         groupElement.setAttribute("deleted", "false");
         groupElement.setAttribute("href", contactGroup->getGoogleId());
     }
-
-    return document.toString(2);
 }
 
 QString ContactEntry::getGoogleShortId() const

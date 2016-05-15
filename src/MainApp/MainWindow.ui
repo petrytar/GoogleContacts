@@ -220,6 +220,9 @@ border: none;
     <addaction name="separator"/>
     <addaction name="actionSynchronize"/>
     <addaction name="separator"/>
+    <addaction name="actionExport"/>
+    <addaction name="actionImport"/>
+    <addaction name="separator"/>
     <addaction name="actionOptions"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
@@ -264,6 +267,22 @@ border: none;
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>Export...</string>
+   </property>
+   <property name="toolTip">
+    <string>Export Contacts</string>
+   </property>
+  </action>
+  <action name="actionImport">
+   <property name="text">
+    <string>Import...</string>
+   </property>
+   <property name="toolTip">
+    <string>Import Contacts</string>
    </property>
   </action>
  </widget>

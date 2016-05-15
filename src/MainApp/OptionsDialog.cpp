@@ -17,6 +17,8 @@ OptionsDialog::OptionsDialog(Settings* settings, QWidget *parent) :
     ui->syncEdit->setText(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_SYNCHRONIZE)).toString());
     ui->exitEdit->setText(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_EXIT)).toString());
     ui->optionsEdit->setText(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_OPTIONS)).toString());
+    ui->exportEdit->setText(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_EXPORT)).toString());
+    ui->importEdit->setText(QKeySequence(m_settings->getValue(Settings::E_SHORTCUT_IMPORT)).toString());
     ui->syncIntervalSpinBox->setValue(m_settings->getValue(Settings::E_SYNCHRONIZATION_INTERVAL).toInt());
 }
 
@@ -33,6 +35,8 @@ void OptionsDialog::accept()
     m_settings->setValue(Settings::E_SHORTCUT_SYNCHRONIZE, QKeySequence(ui->syncEdit->text()).toString());
     m_settings->setValue(Settings::E_SHORTCUT_EXIT, QKeySequence(ui->exitEdit->text()).toString());
     m_settings->setValue(Settings::E_SHORTCUT_OPTIONS, QKeySequence(ui->optionsEdit->text()).toString());
+    m_settings->setValue(Settings::E_SHORTCUT_EXPORT, QKeySequence(ui->exportEdit->text()).toString());
+    m_settings->setValue(Settings::E_SHORTCUT_IMPORT, QKeySequence(ui->importEdit->text()).toString());
     m_settings->setValue(Settings::E_SYNCHRONIZATION_INTERVAL, QString::number(ui->syncIntervalSpinBox->value()));
     BaseClass::accept();
 }
@@ -45,6 +49,8 @@ void OptionsDialog::on_resetToDefaultButton_clicked()
     ui->syncEdit->setText(QKeySequence(m_settings->getDefaultValue(Settings::E_SHORTCUT_SYNCHRONIZE)).toString());
     ui->exitEdit->setText(QKeySequence(m_settings->getDefaultValue(Settings::E_SHORTCUT_EXIT)).toString());
     ui->optionsEdit->setText(QKeySequence(m_settings->getDefaultValue(Settings::E_SHORTCUT_OPTIONS)).toString());
+    ui->exportEdit->setText(QKeySequence(m_settings->getDefaultValue(Settings::E_SHORTCUT_EXPORT)).toString());
+    ui->importEdit->setText(QKeySequence(m_settings->getDefaultValue(Settings::E_SHORTCUT_IMPORT)).toString());
     ui->syncIntervalSpinBox->setValue(m_settings->getDefaultValue(Settings::E_SYNCHRONIZATION_INTERVAL).toInt());
 }
 
@@ -76,4 +82,14 @@ void OptionsDialog::on_resetSyncButton_clicked()
 void OptionsDialog::on_resetOptionsButton_clicked()
 {
     ui->optionsEdit->setText("");
+}
+
+void OptionsDialog::on_resetExportButton_clicked()
+{
+    ui->exportEdit->setText("");
+}
+
+void OptionsDialog::on_resetImportButton_clicked()
+{
+    ui->importEdit->setText("");
 }

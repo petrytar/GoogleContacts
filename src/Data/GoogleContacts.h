@@ -45,6 +45,9 @@ public:
 
     QList<ptr<ContactEntry>> findContacts(const QString& str);
 
+    bool exportContacts(const QString& fileName);
+    bool importContacts(const QString& fileName);
+
 signals:
     void groupsSyncSuccessful();
     void contactsSyncSuccessful();

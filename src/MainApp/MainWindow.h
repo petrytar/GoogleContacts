@@ -75,6 +75,8 @@ private slots:
     void on_actionSynchronize_triggered();
     void on_actionExit_triggered();
     void on_actionOptions_triggered();
+    void on_actionExport_triggered();
+    void on_actionImport_triggered();
 
 private:
     // helping enum for tableWidget columns
@@ -97,6 +99,8 @@ private:
     void deleteContact();
     void synchronizeContacts();
     void showOptionsDialog();
+    void exportContacts();
+    void importContacts();
 
     void fillContactGroupsTreeWidget();
     void fillContactEntriesTreeWidget();
