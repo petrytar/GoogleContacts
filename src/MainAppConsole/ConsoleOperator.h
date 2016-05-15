@@ -27,6 +27,8 @@ public:
     void findContacts(const QString& pattern);
     void createContact(const QString& name);
     void deleteContacts(const QString& pattern);
+    void exportContacts(const QString& fileName);
+    void importContacts(const QString& fileName);
 
 public slots:
     void syncContacts();

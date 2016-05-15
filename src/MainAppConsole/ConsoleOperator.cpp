@@ -112,6 +112,37 @@ void ConsoleOperator::deleteContacts(const QString& pattern)
     syncContacts();
 }
 
+void ConsoleOperator::exportContacts(const QString& fileName)
+{
+    auto exportCallBack = [this, fileName]()
+    {
+        bool result = m_googleContacts->exportContacts(fileName);
+        if (!result)
+        {
+            qStdOut() << "Export of contacts failed";
+            QCoreApplication::exit(-1);
+        }
+        else
+        {
+            QCoreApplication::exit();
+        }
+    };
+    VERIFY(connect(m_googleContacts, &data::GoogleContacts::contactsSyncSuccessful, exportCallBack));
+    syncContacts();
+}
+
+void ConsoleOperator::importContacts(const QString& fileName)
+{
+    bool result = m_googleContacts->importContacts(fileName);
+    if (!result)
+    {
+        qStdOut() << "Import of contacts failed";
+        QCoreApplication::exit(-1);
+    }
+    VERIFY(connect(m_googleContacts, SIGNAL(contactsSyncSuccessful()), this, SLOT(onContactsSyncSuccessful())));
+    syncContacts();
+}
+
 void ConsoleOperator::syncContacts()
 {
     m_googleContacts->syncGroupsAndContacts();
