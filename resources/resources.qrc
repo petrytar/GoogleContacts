@@ -4,5 +4,6 @@
         <file>contacts.png</file>
         <file>green_status.png</file>
         <file>red_status.png</file>
+        <file>sync.png</file>
     </qresource>
 </RCC>

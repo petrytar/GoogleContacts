@@ -132,7 +132,7 @@ void MainWindow::setActiveUser(data::ptr<data::User> user)
     m_googleContacts->setActiveUser(user);
     fillContactGroupsTreeWidget();
     fillContactEntriesTreeWidget();
-    m_googleContacts->syncGroupsAndContacts();
+    synchronizeContacts();
     m_syncTimer->start();
     show();
 }
@@ -170,14 +170,14 @@ void MainWindow::onGroupsSyncSuccessful()
 void MainWindow::onContactsSyncSuccessful()
 {
     fillContactEntriesTreeWidget();
-    qDebug() << QString("Successfully syncronized on %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz"));
-    updateStatusLabel(true, QString());
+    qDebug() << QString("Successfully synchronized on %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz"));
+    updateStatusLabel(E_STATUS_CONNECTED, QString("Last sync on %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")));
 }
 
 void MainWindow::onContactsAuthorizationError()
 {
-    updateStatusLabel(false, QString("Authorization error"));
-    qDebug() << QString("Failed to syncronize on %1 (authorization error)").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz"));
+    updateStatusLabel(E_STATUS_SYNCING, QString("Authorization error"));
+    qDebug() << QString("Failed to synchronize on %1 (authorization error)").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz"));
     m_authManager->refreshAccessToken(m_googleContacts->getActiveUser()->getRefreshToken());
 }
 
@@ -185,7 +185,7 @@ void MainWindow::onContactsOtherError(QNetworkReply::NetworkError error)
 {
     fillContactEntriesTreeWidget();
     qDebug() << QString("Failed to syncronize on %1 (error code: %2)").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")).arg(error);
-    updateStatusLabel(false, QString("Network error"));
+    updateStatusLabel(E_STATUS_DISCONNECTED, QString("Network error"));
 }
 
 void MainWindow::onAccessTokenReceived(const QString& accessToken)
@@ -197,7 +197,7 @@ void MainWindow::onAccessTokenReceived(const QString& accessToken)
 
 void MainWindow::onInvalidRefreshToken()
 {
-    updateStatusLabel(false, "Failed to refresh access token (invalid refresh token)");
+    updateStatusLabel(E_STATUS_DISCONNECTED, "Failed to refresh access token (invalid refresh token)");
     qDebug() << "Failed to refresh access token - invalid refresh token";
 }
 
@@ -432,6 +432,7 @@ void MainWindow::setUserContactListValueRows(int column, const QList<QStringList
 
 void MainWindow::synchronizeContacts()
 {
+    updateStatusLabel(E_STATUS_SYNCING, QString());
     m_googleContacts->syncGroupsAndContacts();
 }
 
@@ -566,11 +567,33 @@ void MainWindow::onSyncTimerTimeout()
     synchronizeContacts();
 }
 
-void MainWindow::updateStatusLabel(bool ok, const QString& message)
+void MainWindow::updateStatusLabel(EStatus status, const QString& message)
 {
-    QString imagePath = ok ? "green_status.png" : "red_status.png";
+    QString imagePath;
+    QString statusText;
+    switch (status)
+    {
+        case E_STATUS_CONNECTED:
+        {
+            imagePath = "green_status.png";
+            statusText = "Connected";
+            break;
+        }
+        case E_STATUS_DISCONNECTED:
+        {
+            imagePath = "red_status.png";
+            statusText = "Disconnected";
+            break;
+        }
+        case E_STATUS_SYNCING:
+        {
+            imagePath = "sync.png";
+            statusText = "Synchronizing";
+            break;
+        }
+    }
+
     m_statusIconLabel->setText(QString("<img src=\":/%1\"/>").arg(imagePath));
-    QString statusText = ok ? "Connected" : "Disconnected";
     if (!message.isEmpty())
     {
         statusText.append(" - " + message);

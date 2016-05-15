@@ -113,7 +113,14 @@ private:
     void setUserContactSingleValueRows(int column, const QStringList& userContactNames);
     void setUserContactListValueRows(int column, const QList<QStringList>& phoneNumbersList);
 
-    void updateStatusLabel(bool ok, const QString& message);
+    enum EStatus
+    {
+        E_STATUS_CONNECTED,
+        E_STATUS_DISCONNECTED,
+        E_STATUS_SYNCING
+    };
+
+    void updateStatusLabel(EStatus status, const QString& message);
 
     Ui::MainWindow* ui;
     LoginDialog* m_loginDialog;

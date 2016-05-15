@@ -1,3 +1,4 @@
 contacts.png - http://www.iconspedia.com/icon/google-contacts--745.html
 green_status.png - Qt 5.5 Sources (qtwebkit\Source\WebInspectorUI\UserInterface\Images)
 red_status.png - Qt 5.5 Sources (qtwebkit\Source\WebInspectorUI\UserInterface\Images)
+sync.png - https://www.iconfinder.com/icons/87924/sync_icon#size=16 (resized to 16x14px)
