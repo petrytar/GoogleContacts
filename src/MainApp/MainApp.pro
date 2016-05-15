@@ -1,5 +1,5 @@
 include($$PWD/../3rdParty/QxOrm/QxOrm.pri)
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets core gui network webkit webkitwidgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets core gui network webkit webkitwidgets testlib
 
 TARGET      = GoogleContacts
 TEMPLATE    = app
@@ -48,6 +48,7 @@ win32 {
 unix:!macx: LIBS += -L$$PWD/../../libs/linux/QxOrm/ -lQxOrm
 
 LIBS += -L$$OUT_PWD/../ -lData
+LIBS += -L$$OUT_PWD/../ -lTests
 
 INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../

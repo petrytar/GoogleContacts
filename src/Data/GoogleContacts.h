@@ -10,6 +10,10 @@
 class QNetworkAccessManager;
 class QNetworkReply;
 
+namespace test
+{
+class Test_GoogleContacts;
+}
 namespace data
 {
 
@@ -47,6 +51,8 @@ public:
 
     bool exportContacts(const QString& fileName);
     bool importContacts(const QString& fileName);
+
+    friend test::Test_GoogleContacts;
 
 signals:
     void groupsSyncSuccessful();

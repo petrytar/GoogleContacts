@@ -42,6 +42,8 @@ public:
 
     void setup();
 
+    data::Database* getDatabase() { return m_database; }
+
 private slots:
     void onNewUserInitialized(data::ptr<data::User> user);
 

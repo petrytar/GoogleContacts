@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed gd:etag="&quot;Qno_cDVSLyt7I2A9XRBQE00DRAw.&quot;" xmlns="http://www.w3.org/2005/Atom" xmlns:batch="http://schemas.google.com/gdata/batch" xmlns:gContact="http://schemas.google.com/contact/2008" xmlns:gd="http://schemas.google.com/g/2005" xmlns:openSearch="http://a9.com/-/spec/opensearch/1.1/">
+ <id>petrytar.tester.0@gmail.com</id>
+ <updated>2016-05-15T10:49:43.448Z</updated>
+ <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/contact/2008#contact"/>
+ <title>Tester One's Contacts</title>
+ <link rel="alternate" type="text/html" href="https://www.google.com/"/>
+ <link rel="http://schemas.google.com/g/2005#feed" type="application/atom+xml" href="https://www.google.com/m8/feeds/contacts/petrytar.tester.0%40gmail.com/full"/>
+ <link rel="http://schemas.google.com/g/2005#post" type="application/atom+xml" href="https://www.google.com/m8/feeds/contacts/petrytar.tester.0%40gmail.com/full"/>
+ <link rel="http://schemas.google.com/g/2005#batch" type="application/atom+xml" href="https://www.google.com/m8/feeds/contacts/petrytar.tester.0%40gmail.com/full/batch"/>
+ <link rel="self" type="application/atom+xml" href="https://www.google.com/m8/feeds/contacts/petrytar.tester.0%40gmail.com/full?max-results=25"/>
+ <link rel="next" type="application/atom+xml" href="https://www.google.com/m8/feeds/contacts/petrytar.tester.0%40gmail.com/full?max-results=25&amp;start-index=26"/>
+ <author>
+  <name>Tester One</name>
+  <email>petrytar.tester.0@gmail.com</email>
+ </author>
+ <generator version="1.0" uri="http://www.google.com/m8/feeds">Contacts</generator>
+ <openSearch:totalResults>3</openSearch:totalResults>
+ <openSearch:startIndex>1</openSearch:startIndex>
+ <openSearch:itemsPerPage>25</openSearch:itemsPerPage>
+ <entry gd:etag="&quot;QHc_ezVSLit7I2A9XRBQEkQPTwM.&quot;">
+  <id>http://www.google.com/m8/feeds/contacts/petrytar.tester.0%40gmail.com/base/24a7678e389be0</id>
+  <updated>2016-05-15T07:04:31.943Z</updated>
+  <app:edited xmlns:app="http://www.w3.org/2007/app">2016-05-15T07:04:31.943Z</app:edited>
+  <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/contact/2008#contact"/>
+  <title>Test Contact 736</title>
+  <link rel="http://schemas.google.com/contacts/2008/rel#photo" type="image/*" href="https://www.google.com/m8/feeds/photos/media/petrytar.tester.0%40gmail.com/24a7678e389be0"/>
+  <link rel="self" type="application/atom+xml" href="https://www.google.com/m8/feeds/contacts/petrytar.tester.0%40gmail.com/full/24a7678e389be0"/>
+  <link rel="edit" type="application/atom+xml" href="https://www.google.com/m8/feeds/contacts/petrytar.tester.0%40gmail.com/full/24a7678e389be0"/>
+  <gd:name>
+   <gd:fullName>Test Contact 736</gd:fullName>
+   <gd:givenName>Test</gd:givenName>
+   <gd:additionalName>Contact</gd:additionalName>
+   <gd:familyName>736</gd:familyName>
+  </gd:name>
+  <gd:email rel="http://schemas.google.com/g/2005#home" address="Test Contact 736" primary="true"/>
+  <gd:phoneNumber rel="http://schemas.google.com/g/2005#mobile">+420025319</gd:phoneNumber>
+  <gd:structuredPostalAddress rel="http://schemas.google.com/g/2005#home">
+   <gd:formattedAddress>Thakurova 736</gd:formattedAddress>
+   <gd:street>Thakurova 736</gd:street>
+  </gd:structuredPostalAddress>
+  <gContact:groupMembershipInfo deleted="false" href="http://www.google.com/m8/feeds/groups/petrytar.tester.0%40gmail.com/base/6"/>
+ </entry>
+ <entry gd:etag="&quot;SHg8ejVSLit7I2A9XRBQEkUORAY.&quot;">
+  <id>http://www.google.com/m8/feeds/contacts/petrytar.tester.0%40gmail.com/base/27a1de889d9cde</id>
+  <updated>2016-05-15T03:52:09.672Z</updated>
+  <app:edited xmlns:app="http://www.w3.org/2007/app">2016-05-15T03:52:09.672Z</app:edited>
+  <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/contact/2008#contact"/>
+  <title>Test Contact 255</title>
+  <link rel="http://schemas.google.com/contacts/2008/rel#photo" type="image/*" href="https://www.google.com/m8/feeds/photos/media/petrytar.tester.0%40gmail.com/27a1de889d9cde"/>
+  <link rel="self" type="application/atom+xml" href="https://www.google.com/m8/feeds/contacts/petrytar.tester.0%40gmail.com/full/27a1de889d9cde"/>
+  <link rel="edit" type="application/atom+xml" href="https://www.google.com/m8/feeds/contacts/petrytar.tester.0%40gmail.com/full/27a1de889d9cde"/>
+  <gd:name>
+   <gd:fullName>Test Contact 255</gd:fullName>
+   <gd:givenName>Test</gd:givenName>
+   <gd:additionalName>Contact</gd:additionalName>
+   <gd:familyName>255</gd:familyName>
+  </gd:name>
+  <gd:email rel="http://schemas.google.com/g/2005#home" address="Test Contact 255" primary="true"/>
+  <gd:phoneNumber rel="http://schemas.google.com/g/2005#mobile">+420918022</gd:phoneNumber>
+  <gd:structuredPostalAddress rel="http://schemas.google.com/g/2005#home">
+   <gd:formattedAddress>Thakurova 255</gd:formattedAddress>
+   <gd:street>Thakurova 255</gd:street>
+  </gd:structuredPostalAddress>
+  <gContact:groupMembershipInfo deleted="false" href="http://www.google.com/m8/feeds/groups/petrytar.tester.0%40gmail.com/base/6"/>
+ </entry>
+ <entry gd:etag="&quot;SX4yfDVSLit7I2A9XRBQEkQNQwQ.&quot;">
+  <id>http://www.google.com/m8/feeds/contacts/petrytar.tester.0%40gmail.com/base/37954f898dc82b</id>
+  <updated>2016-05-15T07:30:08.094Z</updated>
+  <app:edited xmlns:app="http://www.w3.org/2007/app">2016-05-15T07:30:08.094Z</app:edited>
+  <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/contact/2008#contact"/>
+  <title>Test Contact 800</title>
+  <link rel="http://schemas.google.com/contacts/2008/rel#photo" type="image/*" href="https://www.google.com/m8/feeds/photos/media/petrytar.tester.0%40gmail.com/37954f898dc82b"/>
+  <link rel="self" type="application/atom+xml" href="https://www.google.com/m8/feeds/contacts/petrytar.tester.0%40gmail.com/full/37954f898dc82b"/>
+  <link rel="edit" type="application/atom+xml" href="https://www.google.com/m8/feeds/contacts/petrytar.tester.0%40gmail.com/full/37954f898dc82b"/>
+  <gd:name>
+   <gd:fullName>Test Contact 800</gd:fullName>
+   <gd:givenName>Test</gd:givenName>
+   <gd:additionalName>Contact</gd:additionalName>
+   <gd:familyName>800</gd:familyName>
+  </gd:name>
+  <gd:email rel="http://schemas.google.com/g/2005#home" address="Test Contact 800" primary="true"/>
+  <gd:phoneNumber rel="http://schemas.google.com/g/2005#mobile">+420036355</gd:phoneNumber>
+  <gd:structuredPostalAddress rel="http://schemas.google.com/g/2005#home">
+   <gd:formattedAddress>Thakurova 800</gd:formattedAddress>
+   <gd:street>Thakurova 800</gd:street>
+  </gd:structuredPostalAddress>
+  <gContact:groupMembershipInfo deleted="false" href="http://www.google.com/m8/feeds/groups/petrytar.tester.0%40gmail.com/base/6"/>
+ </entry>
+</feed>
