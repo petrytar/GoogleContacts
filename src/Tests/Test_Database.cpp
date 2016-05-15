@@ -34,7 +34,6 @@ void Test_Database::test_savingUserToDatabase()
             QCOMPARE(user->getAccessToken(), tester->getAccessToken());
             QCOMPARE(user->getRefreshToken(), tester->getRefreshToken());
             isUserFound = true;
-            break;
         }
     }
 
@@ -55,68 +54,47 @@ void Test_Database::test_savingContactEntriesToDatabase()
     ContactEntryPtr contactEntryPtr(new data::ContactEntry());
     contactEntryPtr->setUser(tester);
     
-    ContactPropertyPtr contactNumberProperty(new data::ContactProperty(contactEntryPtr,
+    ContactPropertyPtr contactPropertyPtr0(new data::ContactProperty(contactEntryPtr,
                                                                      "label1",
                                                                      "+4207277222",
                                                                      data::ContactProperty::E_TYPE_PHONE_NUMBER));
-    ContactPropertyPtr contactEmailProperty(new data::ContactProperty(contactEntryPtr,
+    ContactPropertyPtr contactPropertyPtr1(new data::ContactProperty(contactEntryPtr,
                                                                      "label2",
                                                                      "gc_test@mail.cz",
                                                                      data::ContactProperty::E_TYPE_EMAIL));
     
-    contactEntryPtr->addPhoneNumber(contactNumberProperty);
-    contactEntryPtr->addEmail(contactEmailProperty);
+    contactEntryPtr->addPhoneNumber(contactPropertyPtr0);
+    contactEntryPtr->addEmail(contactPropertyPtr1);
 
     m_database->save(contactEntryPtr);
 
     bool isContactPhoneNumberFound = false;
     bool isContactEmailFound = false;
-    QList<ContactEntryPtr> contactEntriesList = m_database->getContactEntries(tester);
-
-    auto checkIfUserConsistNumberAndEmail = [&](ContactEntryPtr contact)
-    {
-        for (ContactPropertyPtr phoneNumber : contact->getPhoneNumbers())
-        {
-            if (phoneNumber->getLabel() == contactNumberProperty->getLabel())
-            {
-                QCOMPARE(phoneNumber->getValue(), contactNumberProperty->getValue());
-                isContactPhoneNumberFound = true;
-                break;
-            }
-        }
-
-        for (ContactPropertyPtr email : contact->getEmails())
-        {
-            if (email->getLabel() == contactEmailProperty->getLabel())
-            {
-                QCOMPARE(email->getValue(), contactEmailProperty->getValue());
-                isContactEmailFound = true;
-                break;
-            }
-        }
-
-        if (isContactPhoneNumberFound && isContactEmailFound)
-        {
-            QCOMPARE(isContactPhoneNumberFound && isContactEmailFound, true);
-            m_database->remove(tester);
-            return;
-        }
-    };
-
-    if (!contactEntriesList.empty() && contactEntriesList.back()->getId() == contact->getId())
-    {
-        checkIfUserConsistNumberAndEmail(contactEntriesList.back());
-    }
-
-    for (ContactEntryPtr contact : contactEntriesList)
+    for (ContactEntryPtr contact : m_database->getContactEntries(tester))
     {
         if (contact->getId() == contactEntryPtr->getId())
         {
-            checkIfUserConsistNumberAndEmail(contact);
+            for (ContactPropertyPtr phoneNumber : contact->getPhoneNumbers())
+            {
+                if (phoneNumber->getLabel() == contactPropertyPtr0->getLabel())
+                {
+                    QCOMPARE(phoneNumber->getValue(), contactPropertyPtr0->getValue());
+                    isContactPhoneNumberFound = true;
+                }
+            }
+
+            for (ContactPropertyPtr email : contact->getEmails())
+            {
+                if (email->getLabel() == contactPropertyPtr1->getLabel())
+                {
+                    QCOMPARE(email->getValue(), contactPropertyPtr1->getValue());
+                    isContactEmailFound = true;
+                }
+            }
         }
     }
-
     QCOMPARE(isContactPhoneNumberFound && isContactEmailFound, true);
+
     m_database->remove(tester);
 }
 
